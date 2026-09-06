@@ -10,7 +10,7 @@ import { Records } from './components/Records';
 import { BottomNav, type Tab } from './components/BottomNav';
 import { Stats } from './components/Stats';
 import { Settings } from './components/Settings';
-import { createRound, finishRound, saveHoles, useRounds } from './hooks/useRounds';
+import { createRound, deleteRound, finishRound, saveHoles, useRounds } from './hooks/useRounds';
 import { calcStats, calcTotals } from './utils/golf';
 import type { Hole, Round } from './types';
 
@@ -125,6 +125,27 @@ export default function App() {
     setScreen('main');
   };
 
+  const handleForceTerminateRound = async () => {
+    if (!activeRound) return;
+
+    const confirmed = window.confirm(
+      '진행 중인 라운드를 강제로 종료하시겠습니까?\n\n현재까지 입력한 모든 기록이 삭제되며 복구할 수 없습니다.',
+    );
+    if (!confirmed) return;
+
+    try {
+      setSaveStatus('saving');
+      await deleteRound(user.uid, activeRound.id);
+      setActiveRound(null);
+      setSaveStatus('idle');
+      setScreen('main');
+    } catch (err) {
+      console.error(err);
+      setSaveStatus('error');
+      window.alert('라운드를 삭제하지 못했습니다. 인터넷 연결을 확인한 후 다시 시도해주세요.');
+    }
+  };
+
   const openDetail = (round: Round, fromTab: Tab) => {
     setTab(fromTab);
     setDetailRound(round);
@@ -157,6 +178,7 @@ export default function App() {
             setScreen('scorecard');
           }}
           onExit={handleExitRound}
+          onForceTerminate={handleForceTerminateRound}
         />
       )}
 

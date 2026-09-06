@@ -4,6 +4,7 @@ import {
   addDoc,
   doc,
   updateDoc,
+  deleteDoc,
   onSnapshot,
   query,
   orderBy,
@@ -92,4 +93,9 @@ export async function saveHoles(uid: string, roundId: string, holes: Hole[]) {
 /** 라운드 종료 처리 */
 export async function finishRound(uid: string, roundId: string) {
   await updateDoc(doc(db, 'users', uid, 'rounds', roundId), { finished: true, updatedAt: Date.now() });
+}
+
+/** 진행 중인 라운드를 완전히 삭제한다. (강제 종료) */
+export async function deleteRound(uid: string, roundId: string) {
+  await deleteDoc(doc(db, 'users', uid, 'rounds', roundId));
 }

@@ -11,6 +11,7 @@ interface HoleEntryProps {
   onFinish: () => void;
   onViewScorecard: () => void;
   onExit: () => void;
+  onForceTerminate: () => void;
 }
 
 export function HoleEntry({
@@ -22,6 +23,7 @@ export function HoleEntry({
   onFinish,
   onViewScorecard,
   onExit,
+  onForceTerminate,
 }: HoleEntryProps) {
   const hole = round.holes[holeIndex];
   const isLast = holeIndex === round.holes.length - 1;
@@ -29,16 +31,26 @@ export function HoleEntry({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex h-14 flex-shrink-0 items-center justify-between px-2">
-        <button
-          type="button"
-          onClick={onExit}
-          aria-label="나가기"
-          className="flex h-10 w-10 items-center justify-center text-2xl text-gray-500"
-        >
-          ×
-        </button>
-        <span className="text-sm font-semibold text-gray-500">{saveStatusText(saveStatus)}</span>
+      <header className="flex h-14 flex-shrink-0 items-center justify-between gap-1 px-2">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onExit}
+            aria-label="임시 나가기"
+            title="임시 나가기 (기록은 저장됩니다)"
+            className="flex h-10 w-10 items-center justify-center text-2xl text-gray-500"
+          >
+            ×
+          </button>
+          <button
+            type="button"
+            onClick={onForceTerminate}
+            className="h-9 rounded-lg px-2 text-xs font-semibold text-red-500 hover:bg-red-50 active:bg-red-100"
+          >
+            강제 종료
+          </button>
+        </div>
+        <span className="text-center text-xs font-semibold text-gray-500">{saveStatusText(saveStatus)}</span>
         <button
           type="button"
           onClick={onViewScorecard}
