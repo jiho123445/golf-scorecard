@@ -20,7 +20,7 @@ interface NewRoundProps {
   }) => Promise<void>;
 }
 
-const PAR_CYCLE: Array<3 | 4 | 5> = [3, 4, 5];
+const PAR_CYCLE: number[] = [3, 4, 5];
 
 
 function normalizeCourseKey(value: string) {

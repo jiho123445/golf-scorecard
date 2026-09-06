@@ -9,7 +9,7 @@ import {
   orderBy,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import type { Hole, HoleCount, Round, SportType } from '../types';
+import type { Hole, HoleCount, ParkPlayer, Round, SportType } from '../types';
 import { calcTotals } from '../utils/golf';
 
 function roundsCollection(uid: string) {
@@ -58,13 +58,14 @@ export function newRoundId(uid: string): string {
 /** 새 라운드를 지정한 ID로 저장한다. 클라이언트에서 먼저 화면 전환할 수 있도록 ID를 미리 생성한다. */
 export async function createRound(
   uid: string,
-  data: { sportType?: SportType; date: string; courseName: string; courseCourseName?: string; courseRegion?: string; courseId?: string; teeBox?: string; weather?: string; memo?: string; holeCount: HoleCount; holes: Hole[] },
+  data: { sportType?: SportType; parkPlayers?: ParkPlayer[]; date: string; courseName: string; courseCourseName?: string; courseRegion?: string; courseId?: string; teeBox?: string; weather?: string; memo?: string; holeCount: HoleCount; holes: Hole[] },
   roundId = newRoundId(uid),
 ): Promise<string> {
   const totals = calcTotals(data.holes);
   const roundRef = doc(db, 'users', uid, 'rounds', roundId);
   await setDoc(roundRef, {
     sportType: data.sportType ?? 'golf',
+    parkPlayers: data.parkPlayers ?? [],
     date: data.date,
     courseName: data.courseName,
     courseCourseName: data.courseCourseName ?? '',
@@ -86,10 +87,11 @@ export async function createRound(
 }
 
 /** 홀 목록 갱신 + 합계 자동 재계산 (자동 저장에 사용) */
-export async function saveHoles(uid: string, roundId: string, holes: Hole[]) {
+export async function saveHoles(uid: string, roundId: string, holes: Hole[], parkPlayers?: ParkPlayer[]) {
   const totals = calcTotals(holes);
   await setDoc(doc(db, 'users', uid, 'rounds', roundId), {
     holes,
+    ...(parkPlayers ? { parkPlayers } : {}),
     totalScore: totals.totalScore,
     totalPar: totals.totalPar,
     totalPutts: totals.totalPutts,
