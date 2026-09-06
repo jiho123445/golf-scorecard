@@ -20,8 +20,7 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 export default function App() {
   const { user, loading: authLoading, logout } = useAuth();
-  const { rounds, loading: roundsLoading } = useRounds(user?.uid ?? null);
-
+  const { rounds } = useRounds();
   const [tab, setTab] = useState<Tab>('home');
   const [screen, setScreen] = useState<Screen>('main');
   const [activeRound, setActiveRound] = useState<Round | null>(null);
