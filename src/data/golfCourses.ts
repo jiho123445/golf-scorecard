@@ -40,7 +40,12 @@ export const golfCourses: GolfCourse[] = [
   },
   {
     id: 'beaconhills', name: '비콘힐스 골프클럽', region: '강원특별자치도 홍천군', address: '강원특별자치도 홍천군 홍천읍 높은터로 533', totalHoles: 18,
-    courses: ['누리', '하늘'], aliases: ['비콘힐스', '비콘힐스cc', '비콘힐스gc', 'beaconhills', 'beacon hills', '홍천컨트리클럽'],
+    courses: ['누리', '하늘'], aliases: ['비콘힐스', '비콘힐스cc', '비콘힐스gc', '비콘힐스 골프장', 'beaconhills', 'beacon hills', '홍천컨트리클럽'],
+    // 비콘힐스 공식 코스제원 기준: 누리 9홀 Par 36 + 하늘 9홀 Par 36 = 총 Par 72
+    coursePars: {
+      '누리': P([5,4,4,3,4,4,4,3,5]),
+      '하늘': P([4,3,5,4,4,3,4,5,4]),
+    },
   },
   { id: 'sonofelice-vivaldi', name: '소노펠리체 컨트리클럽', region: '강원특별자치도 홍천군', totalHoles: 27, courses: ['마운틴', '레이크', '실크'], aliases: ['소노펠리체', 'sonofelice'] },
   { id: 'viva-cc', name: '비발디파크 컨트리클럽', region: '강원특별자치도 홍천군', totalHoles: 27, courses: ['마운틴', '레이크', '밸리'], aliases: ['비발디', '비발디파크', 'vivaldi'] },

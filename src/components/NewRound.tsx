@@ -23,17 +23,45 @@ interface NewRoundProps {
 const PAR_CYCLE: Array<3 | 4 | 5> = [3, 4, 5];
 
 
+function normalizeCourseKey(value: string) {
+  return value.toLowerCase().replace(/[\s\-_.()·]/g, '').replace(/코스|course/g, '');
+}
+
+function findCoursePars(course: GolfCourse, courseName: string) {
+  if (!course.coursePars || !courseName) return undefined;
+  if (course.coursePars[courseName]) return course.coursePars[courseName];
+
+  const target = normalizeCourseKey(courseName);
+  const matchedKey = Object.keys(course.coursePars).find((key) => normalizeCourseKey(key) === target);
+  return matchedKey ? course.coursePars[matchedKey] : undefined;
+}
+
 function applyCoursePars(course: GolfCourse | null, first: string, second: string, count: HoleCount): Hole[] {
   if (!course?.coursePars) return createDefaultHoles(count);
-  const firstPars = course.coursePars[first];
-  const secondPars = count === 18 ? course.coursePars[second] : undefined;
+
+  const firstPars = findCoursePars(course, first);
+  const secondPars = count === 18 ? findCoursePars(course, second) : undefined;
   const pars = count === 18 && firstPars && secondPars ? [...firstPars, ...secondPars] : firstPars;
+
   if (!pars || pars.length < count) return createDefaultHoles(count);
+
   return pars.slice(0, count).map((par, index) => ({
-    ...createDefaultHoles(count)[index],
     number: index + 1,
     par,
+    score: 0,
+    putts: 0,
+    fairway: 'na' as const,
+    gir: null,
+    penalty: 0,
   }));
+}
+
+function hasActualPars(course: GolfCourse | null, first: string, second: string, count: HoleCount) {
+  if (!course?.coursePars) return false;
+  const firstPars = findCoursePars(course, first);
+  if (count === 9) return Boolean(firstPars && firstPars.length >= 9);
+  const secondPars = findCoursePars(course, second);
+  return Boolean(firstPars && secondPars && firstPars.length + secondPars.length >= 18);
 }
 
 export function NewRound({ onBack, onStart }: NewRoundProps) {
@@ -52,6 +80,7 @@ export function NewRound({ onBack, onStart }: NewRoundProps) {
   const searchResults = useMemo(() => searchGolfCourses(courseQuery, region).slice(0, 12), [courseQuery, region]);
   const availableCourses = selectedCourse?.courses ?? [];
   const isMultiNine = selectedCourse ? selectedCourse.totalHoles >= 27 && availableCourses.length > 0 : false;
+  const actualParsApplied = hasActualPars(selectedCourse, courseCourseName, secondCourseName, holeCount);
 
   const changeHoleCount = (count: HoleCount) => {
     setHoleCount(count);
@@ -160,7 +189,7 @@ export function NewRound({ onBack, onStart }: NewRoundProps) {
           {selectedCourse && (
             <div className="mt-3 rounded-xl bg-gray-50 p-3 text-sm">
               <div className="font-bold text-gray-900">{selectedCourse.name}</div>
-              <div className="mt-1 text-xs text-gray-500">{selectedCourse.region} · 총 {selectedCourse.totalHoles}홀{selectedCourse.coursePars ? ' · 실제 홀별 Par 자동 적용' : ''}</div>
+              <div className="mt-1 text-xs text-gray-500">{selectedCourse.region} · 총 {selectedCourse.totalHoles}홀{actualParsApplied ? ' · 실제 홀별 Par 자동 적용' : selectedCourse.coursePars ? ' · 선택한 코스 조합의 Par 데이터를 확인 중' : ''}</div>
               <button type="button" onClick={() => setSelectedCourse(null)} className="mt-2 text-xs font-medium text-brand">다른 골프장 선택</button>
             </div>
           )}
@@ -205,7 +234,7 @@ export function NewRound({ onBack, onStart }: NewRoundProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-500">각 홀 Par 설정 <span className="text-gray-400">({selectedCourse?.coursePars ? '선택한 실제 코스 Par가 자동 적용되었습니다. 필요하면 수정 가능' : '골프장 홀별 데이터가 없는 경우 기본값에서 수정 가능'})</span></label>
+          <label className="text-sm font-medium text-gray-500">각 홀 Par 설정 <span className="text-gray-400">({actualParsApplied ? '선택한 실제 코스 Par가 자동 적용되었습니다. 필요하면 수정 가능' : selectedCourse?.coursePars ? '선택한 코스 조합의 Par 데이터가 없어 기본값이 적용되었습니다.' : '골프장 홀별 데이터가 없는 경우 기본값에서 수정 가능'})</span></label>
           <div className="grid grid-cols-6 gap-2">
             {holes.map((h, i) => <button key={h.number} type="button" onClick={() => cyclePar(i)} className="flex h-16 flex-col items-center justify-center rounded-xl bg-gray-50 active:bg-gray-100"><span className="text-[10px] text-gray-400">{h.number}번</span><span className="text-lg font-bold text-gray-900">P{h.par}</span></button>)}
           </div>
