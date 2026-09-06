@@ -8,7 +8,7 @@ interface ScreenHeaderProps {
 
 export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
   return (
-    <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-gray-100 px-2">
+    <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-gray-100 bg-white/80 px-2 backdrop-blur-xl">
       <div className="flex w-10 items-center justify-start">
         {onBack && (
           <button

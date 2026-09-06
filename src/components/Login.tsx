@@ -28,12 +28,12 @@ export function Login() {
 
   return (
     <div className="app-shell justify-center px-6">
-      <div className="mb-10 text-center">
-        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand text-3xl text-white">
+      <div className="mb-10 rounded-3xl bg-brand px-6 py-8 text-center text-white shadow-lg">
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-3xl text-white">
           ⛳
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">골프 스코어카드</h1>
-        <p className="mt-1 text-sm text-gray-500">라운드를 간단하게 기록하세요</p>
+        <h1 className="text-2xl font-bold text-white">골프 스코어카드</h1>
+        <p className="mt-1 text-sm text-white/70">라운드를 간단하게 기록하세요</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
