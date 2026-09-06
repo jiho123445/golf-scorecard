@@ -7,6 +7,9 @@ export function createDefaultHoles(holeCount: HoleCount): Hole[] {
     par: 4,
     score: 0,
     putts: 0,
+    fairway: i >= 0 ? 'na' : 'na',
+    gir: null,
+    penalty: 0,
   }));
 }
 
@@ -69,18 +72,22 @@ export function parDiffLabel(totalScore: number, totalPar: number): string {
 export function calcStats(rounds: Round[]): RoundStats {
   const finished = rounds.filter((r) => r.finished && r.totalScore > 0);
   if (finished.length === 0) {
-    return { roundCount: 0, average: null, last5Average: null, best: null };
+    return { roundCount: 0, average: null, last5Average: null, last10Average: null, best: null, worst: null, averagePutts: null, fairwayRate: null, girRate: null };
   }
   const sorted = [...finished].sort((a, b) => b.createdAt - a.createdAt);
   const scores = sorted.map((r) => r.totalScore);
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
   const last5 = scores.slice(0, 5);
   const last5Avg = last5.reduce((a, b) => a + b, 0) / last5.length;
+  const last10 = scores.slice(0, 10);
+  const last10Avg = last10.reduce((a, b) => a + b, 0) / last10.length;
   const best = Math.min(...scores);
-  return {
-    roundCount: finished.length,
-    average: Math.round(avg * 10) / 10,
-    last5Average: Math.round(last5Avg * 10) / 10,
-    best,
-  };
+  const worst = Math.max(...scores);
+  const totalPutts = finished.reduce((a, r) => a + r.totalPutts, 0);
+  const avgPutts = totalPutts / finished.length;
+  const fairways = finished.flatMap((r) => r.holes).filter((h) => h.par !== 3 && h.fairway && h.fairway !== 'na');
+  const fairwayRate = fairways.length ? Math.round((fairways.filter((h) => h.fairway === 'hit').length / fairways.length) * 100) : null;
+  const girHoles = finished.flatMap((r) => r.holes).filter((h) => h.gir !== null && h.gir !== undefined);
+  const girRate = girHoles.length ? Math.round((girHoles.filter((h) => h.gir === true).length / girHoles.length) * 100) : null;
+  return { roundCount: finished.length, average: Math.round(avg * 10) / 10, last5Average: Math.round(last5Avg * 10) / 10, last10Average: Math.round(last10Avg * 10) / 10, best, worst, averagePutts: Math.round(avgPutts * 10) / 10, fairwayRate, girRate }; 
 }

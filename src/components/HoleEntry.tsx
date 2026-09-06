@@ -69,6 +69,11 @@ export function HoleEntry({
           )}
         </div>
 
+        <div className="w-full max-w-sm space-y-3 rounded-2xl bg-gray-50 p-4">
+          {hole.par !== 3 && <div><p className="mb-2 text-xs font-semibold text-gray-500">페어웨이 적중</p><div className="flex gap-2"><button type="button" onClick={()=>onUpdateHole(holeIndex,{fairway:'hit'})} className={`h-11 flex-1 rounded-xl text-sm font-semibold ${hole.fairway==='hit'?'bg-brand text-white':'bg-white text-gray-500'}`}>✓ 성공</button><button type="button" onClick={()=>onUpdateHole(holeIndex,{fairway:'miss'})} className={`h-11 flex-1 rounded-xl text-sm font-semibold ${hole.fairway==='miss'?'bg-gray-700 text-white':'bg-white text-gray-500'}`}>✕ 실패</button></div></div>}
+          <div><p className="mb-2 text-xs font-semibold text-gray-500">GIR (그린 적중)</p><div className="flex gap-2"><button type="button" onClick={()=>onUpdateHole(holeIndex,{gir:true})} className={`h-11 flex-1 rounded-xl text-sm font-semibold ${hole.gir===true?'bg-brand text-white':'bg-white text-gray-500'}`}>✓ 성공</button><button type="button" onClick={()=>onUpdateHole(holeIndex,{gir:false})} className={`h-11 flex-1 rounded-xl text-sm font-semibold ${hole.gir===false?'bg-gray-700 text-white':'bg-white text-gray-500'}`}>✕ 실패</button></div></div>
+        </div>
+
         <NumberStepper
           value={hole.putts}
           onChange={(v) => onUpdateHole(holeIndex, { putts: v })}

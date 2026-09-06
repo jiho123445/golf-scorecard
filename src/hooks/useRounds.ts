@@ -53,12 +53,18 @@ export function useRounds(uid: string | null) {
 /** 새 라운드 생성. 각 홀은 Par만 채워진 상태로 시작한다. */
 export async function createRound(
   uid: string,
-  data: { date: string; courseName: string; holeCount: HoleCount; holes: Hole[] },
+  data: { date: string; courseName: string; courseCourseName?: string; courseRegion?: string; courseId?: string; teeBox?: string; weather?: string; memo?: string; holeCount: HoleCount; holes: Hole[] },
 ): Promise<string> {
   const totals = calcTotals(data.holes);
   const docRef = await addDoc(roundsCollection(uid), {
     date: data.date,
     courseName: data.courseName,
+    courseCourseName: data.courseCourseName ?? '',
+    courseRegion: data.courseRegion ?? '',
+    courseId: data.courseId ?? '',
+    teeBox: data.teeBox ?? '',
+    weather: data.weather ?? '',
+    memo: data.memo ?? '',
     holeCount: data.holeCount,
     holes: data.holes,
     totalScore: totals.totalScore,
@@ -66,6 +72,7 @@ export async function createRound(
     totalPutts: totals.totalPutts,
     finished: false,
     createdAt: Date.now(),
+    updatedAt: Date.now(),
   });
   return docRef.id;
 }
@@ -78,10 +85,11 @@ export async function saveHoles(uid: string, roundId: string, holes: Hole[]) {
     totalScore: totals.totalScore,
     totalPar: totals.totalPar,
     totalPutts: totals.totalPutts,
+    updatedAt: Date.now(),
   });
 }
 
 /** 라운드 종료 처리 */
 export async function finishRound(uid: string, roundId: string) {
-  await updateDoc(doc(db, 'users', uid, 'rounds', roundId), { finished: true });
+  await updateDoc(doc(db, 'users', uid, 'rounds', roundId), { finished: true, updatedAt: Date.now() });
 }

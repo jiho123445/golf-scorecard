@@ -8,6 +8,8 @@ import { Scorecard } from './components/Scorecard';
 import { RoundSummary } from './components/RoundSummary';
 import { Records } from './components/Records';
 import { BottomNav, type Tab } from './components/BottomNav';
+import { Stats } from './components/Stats';
+import { Settings } from './components/Settings';
 import { createRound, finishRound, saveHoles, useRounds } from './hooks/useRounds';
 import { calcStats, calcTotals } from './utils/golf';
 import type { Hole, Round } from './types';
@@ -61,13 +63,19 @@ export default function App() {
     }
   };
 
-  const handleStartRound = async (data: { date: string; courseName: string; holeCount: 9 | 18; holes: Hole[] }) => {
+  const handleStartRound = async (data: { date: string; courseName: string; courseCourseName?: string; courseRegion?: string; courseId?: string; teeBox?: string; weather?: string; memo?: string; holeCount: 9 | 18; holes: Hole[] }) => {
     const id = await createRound(user.uid, data);
     const totals = calcTotals(data.holes);
     setActiveRound({
       id,
       date: data.date,
       courseName: data.courseName,
+      courseCourseName: data.courseCourseName,
+      courseRegion: data.courseRegion,
+      courseId: data.courseId,
+      teeBox: data.teeBox,
+      weather: data.weather,
+      memo: data.memo,
       holeCount: data.holeCount,
       holes: data.holes,
       totalScore: totals.totalScore,
@@ -180,26 +188,10 @@ export default function App() {
 
       {screen === 'main' && (
         <>
-          {tab === 'home' ? (
-            <Home
-              displayName={displayName}
-              stats={stats}
-              recentRounds={recentRounds}
-              inProgressRound={inProgressRound}
-              onStartNewRound={() => setScreen('newRound')}
-              onResumeRound={handleResumeRound}
-              onOpenRound={(r) => openDetail(r, 'home')}
-            />
-          ) : (
-            <Records rounds={rounds} onOpenRound={(r) => openDetail(r, 'records')} />
-          )}
-          {!roundsLoading && (
-            <div className="px-5 pb-1 text-right">
-              <button type="button" onClick={logout} className="text-xs text-gray-400 underline">
-                로그아웃
-              </button>
-            </div>
-          )}
+          {tab === 'home' && <Home displayName={displayName} stats={stats} recentRounds={recentRounds} inProgressRound={inProgressRound} onStartNewRound={() => setScreen('newRound')} onResumeRound={handleResumeRound} onOpenRound={(r) => openDetail(r, 'home')} />}
+          {tab === 'records' && <Records rounds={rounds} onOpenRound={(r) => openDetail(r, 'records')} />}
+          {tab === 'stats' && <Stats stats={stats} rounds={rounds} />}
+          {tab === 'settings' && <Settings email={user.email ?? ''} onLogout={logout} />}
           <BottomNav active={tab} onChange={setTab} />
         </>
       )}

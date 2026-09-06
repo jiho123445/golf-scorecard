@@ -1,28 +1,46 @@
 export type HoleCount = 9 | 18;
+export type FairwayResult = 'hit' | 'miss' | 'na';
 
 export interface Hole {
   number: number;
   par: 3 | 4 | 5;
-  score: number; // 0 = 아직 입력 안 함
-  putts: number; // 0 = 아직 입력 안 함
+  distance?: number;
+  score: number;
+  putts: number;
+  fairway?: FairwayResult;
+  gir?: boolean | null;
+  penalty?: number;
+  notes?: string;
 }
 
 export interface Round {
   id: string;
-  date: string; // YYYY-MM-DD
+  date: string;
   courseName: string;
+  courseCourseName?: string;
+  courseRegion?: string;
+  courseId?: string;
+  teeBox?: string;
+  weather?: string;
+  memo?: string;
   holeCount: HoleCount;
   holes: Hole[];
   totalScore: number;
   totalPar: number;
   totalPutts: number;
   finished: boolean;
-  createdAt: number; // Date.now() timestamp, 정렬/표시용
+  createdAt: number;
+  updatedAt?: number;
 }
 
 export interface RoundStats {
   roundCount: number;
   average: number | null;
   last5Average: number | null;
+  last10Average: number | null;
   best: number | null;
+  worst: number | null;
+  averagePutts: number | null;
+  fairwayRate: number | null;
+  girRate: number | null;
 }
