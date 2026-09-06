@@ -10,17 +10,18 @@ interface ScorecardProps {
 }
 
 export function Scorecard({ round, onBack, onEditHole }: ScorecardProps) {
+  const isPark = (round.sportType ?? 'golf') === 'park';
   const { front, back } = splitNines(round.holes);
   const outTotals = calcTotals(front);
   const inTotals = calcTotals(back);
 
   return (
     <div className="flex flex-1 flex-col">
-      <ScreenHeader title="전체 스코어카드" onBack={onBack} />
+      <ScreenHeader title={isPark ? '파크골프 전체 기록' : '전체 스코어카드'} onBack={onBack} />
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
         <div className="text-center">
           <p className="font-bold text-gray-900">{round.courseName}</p>
-          <p className="text-xs text-gray-500">{formatDate(round.date)}</p>
+          <p className="text-xs text-gray-500">{formatDate(round.date)} · {round.holeCount}홀</p>
         </div>
 
         <HoleTable
@@ -30,6 +31,7 @@ export function Scorecard({ round, onBack, onEditHole }: ScorecardProps) {
           total={outTotals.totalScore}
           onEditHole={onEditHole}
           baseIndex={0}
+          isPark={isPark}
         />
 
         {back.length > 0 && (
@@ -40,6 +42,7 @@ export function Scorecard({ round, onBack, onEditHole }: ScorecardProps) {
             total={inTotals.totalScore}
             onEditHole={onEditHole}
             baseIndex={front.length}
+            isPark={isPark}
           />
         )}
 
@@ -48,10 +51,8 @@ export function Scorecard({ round, onBack, onEditHole }: ScorecardProps) {
             <p className="text-xs text-white/70">TOTAL SCORE</p>
             <p className="text-3xl font-bold tabular-nums">{round.totalScore || '-'}</p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-white/70">PAR {round.totalPar}</p>
-            <p className="text-xl font-bold tabular-nums">{parDiffLabel(round.totalScore, round.totalPar)}</p>
-          </div>
+          {!isPark && <div className="text-right"><p className="text-xs text-white/70">PAR {round.totalPar}</p><p className="text-xl font-bold tabular-nums">{parDiffLabel(round.totalScore, round.totalPar)}</p></div>}
+          {isPark && <div className="text-right"><p className="text-xs text-white/70">PARK GOLF</p><p className="text-xl font-bold tabular-nums">{round.holeCount}홀</p></div>}
         </div>
       </div>
     </div>
@@ -65,6 +66,7 @@ function HoleTable({
   total,
   onEditHole,
   baseIndex,
+  isPark = false,
 }: {
   title: string;
   holes: Hole[];
@@ -72,6 +74,7 @@ function HoleTable({
   total: number;
   onEditHole?: (index: number) => void;
   baseIndex: number;
+  isPark?: boolean;
 }) {
   return (
     <div>
@@ -80,7 +83,7 @@ function HoleTable({
         <table className="w-full min-w-max text-center text-xs">
           <tbody>
             <Row label="HOLE" cells={holes.map((h) => h.number)} highlight totalLabel={totalLabel} />
-            <Row label="PAR" cells={holes.map((h) => h.par)} totalValue={holes.reduce((a, h) => a + h.par, 0)} />
+            {!isPark && <Row label="PAR" cells={holes.map((h) => h.par)} totalValue={holes.reduce((a, h) => a + h.par, 0)} />}
             <Row
               label="SCORE"
               cells={holes.map((h, i) => (
@@ -97,7 +100,7 @@ function HoleTable({
               totalValue={total || '-'}
               bold
             />
-            <Row label="PUTT" cells={holes.map((h) => h.putts || '-')} totalValue={holes.reduce((a, h) => a + h.putts, 0) || '-'} />
+            {!isPark && <Row label="PUTT" cells={holes.map((h) => h.putts || '-')} totalValue={holes.reduce((a, h) => a + h.putts, 0) || '-'} />}
           </tbody>
         </table>
       </div>

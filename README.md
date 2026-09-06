@@ -1,3 +1,7 @@
+# Happy Golf Scorecard v3.1
+
+골프와 파크골프를 분리 기록하는 통합 스포츠 스코어카드입니다.
+
 # Happy Golf Scorecard v2.0
 
 개인 골퍼용 모바일 우선 골프 스코어카드 웹앱입니다.

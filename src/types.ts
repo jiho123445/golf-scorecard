@@ -1,9 +1,10 @@
 export type HoleCount = 9 | 18;
+export type SportType = 'golf' | 'park';
 export type FairwayResult = 'hit' | 'miss' | 'na';
 
 export interface Hole {
   number: number;
-  par: 3 | 4 | 5;
+  par: number;
   distance?: number;
   score: number;
   putts: number;
@@ -14,6 +15,7 @@ export interface Hole {
 }
 
 export interface Round {
+  sportType?: SportType;
   id: string;
   date: string;
   courseName: string;
