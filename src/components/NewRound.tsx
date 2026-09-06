@@ -14,7 +14,6 @@ interface NewRoundProps {
     courseId?: string;
     teeBox?: string;
     weather?: string;
-    memo?: string;
     holeCount: HoleCount;
     holes: Hole[];
   }) => Promise<void>;
@@ -31,7 +30,6 @@ export function NewRound({ onBack, onStart }: NewRoundProps) {
   const [secondCourseName, setSecondCourseName] = useState('');
   const [teeBox, setTeeBox] = useState('화이트');
   const [weather, setWeather] = useState('맑음');
-  const [memo] = useState('');
   const [holeCount, setHoleCount] = useState<HoleCount>(18);
   const [holes, setHoles] = useState<Hole[]>(createDefaultHoles(18));
   const [busy, setBusy] = useState(false);
@@ -80,7 +78,6 @@ export function NewRound({ onBack, onStart }: NewRoundProps) {
         courseId: selectedCourse?.id,
         teeBox,
         weather,
-        memo,
         holeCount,
         holes,
       });
