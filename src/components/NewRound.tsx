@@ -83,10 +83,10 @@ export function NewRound({ onBack, onStart }: NewRoundProps) {
   const actualParsApplied = hasActualPars(selectedCourse, courseCourseName, secondCourseName, holeCount);
 
   const changeHoleCount = (count: HoleCount) => {
+    // 9홀로 전환해도 두 번째 코스 선택값을 지우지 않는다.
+    // 그래야 다시 18홀로 돌아왔을 때 원래 선택했던 코스 조합의 실제 Par를 그대로 복원할 수 있다.
     setHoleCount(count);
-    const nextSecond = count === 9 ? '' : secondCourseName;
-    if (count === 9) setSecondCourseName('');
-    setHoles(applyCoursePars(selectedCourse, courseCourseName, nextSecond, count));
+    setHoles(applyCoursePars(selectedCourse, courseCourseName, secondCourseName, count));
   };
 
   const selectGolfCourse = (course: GolfCourse) => {

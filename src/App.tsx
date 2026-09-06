@@ -30,6 +30,8 @@ export default function App() {
   const [detailRound, setDetailRound] = useState<Round | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 생성 요청이 아직 완료되기 전에 강제 종료되는 경우를 안전하게 처리합니다.
+  const terminatedRoundIds = useRef<Set<string>>(new Set());
 
   const stats = useMemo(() => calcStats(rounds), [rounds]);
   const recentRounds = useMemo(() => rounds.filter((r) => r.finished).slice(0, 5), [rounds]);
@@ -98,7 +100,15 @@ export default function App() {
     // 네트워크가 느리거나 Firestore가 long-polling으로 연결되는 경우에도
     // 사용자는 바로 기록을 시작할 수 있습니다.
     void createRound(user.uid, data, id)
-      .then(() => flashSaved())
+      .then(async () => {
+        // 생성 중 강제 종료된 경우 늦게 생성된 문서를 다시 삭제합니다.
+        if (terminatedRoundIds.current.has(id)) {
+          await deleteRound(user.uid, id).catch(() => undefined);
+          terminatedRoundIds.current.delete(id);
+          return;
+        }
+        flashSaved();
+      })
       .catch((err) => {
         console.error(err);
         setSaveStatus('error');
@@ -150,17 +160,20 @@ export default function App() {
     );
     if (!confirmed) return;
 
-    try {
-      setSaveStatus('saving');
-      await deleteRound(user.uid, activeRound.id);
-      setActiveRound(null);
-      setSaveStatus('idle');
-      setScreen('main');
-    } catch (err) {
-      console.error(err);
-      setSaveStatus('error');
-      window.alert('라운드를 삭제하지 못했습니다. 인터넷 연결을 확인한 후 다시 시도해주세요.');
-    }
+    // 화면은 즉시 홈으로 이동시켜 Firebase 응답 지연 때문에 앱이 멈추지 않게 합니다.
+    const roundId = activeRound.id;
+    terminatedRoundIds.current.add(roundId);
+    setActiveRound(null);
+    setHoleIndex(0);
+    setSaveStatus('idle');
+    setScreen('main');
+    setTab('home');
+
+    // 삭제는 백그라운드에서 처리합니다. 생성 요청과 경합하는 경우 createRound 완료 후 한 번 더 삭제됩니다.
+    void deleteRound(user.uid, roundId)
+      .catch((err) => {
+        console.error('강제 종료 라운드 삭제 실패:', err);
+      });
   };
 
   const openDetail = (round: Round, fromTab: Tab) => {
