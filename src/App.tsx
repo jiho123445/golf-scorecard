@@ -10,7 +10,7 @@ import { Records } from './components/Records';
 import { BottomNav, type Tab } from './components/BottomNav';
 import { Stats } from './components/Stats';
 import { Settings } from './components/Settings';
-import { createRound, deleteRound, finishRound, saveHoles, useRounds } from './hooks/useRounds';
+import { createRound, deleteRound, finishRound, newRoundId, saveHoles, useRounds } from './hooks/useRounds';
 import { calcStats, calcTotals } from './utils/golf';
 import type { Hole, Round } from './types';
 
@@ -64,9 +64,12 @@ export default function App() {
   };
 
   const handleStartRound = async (data: { date: string; courseName: string; courseCourseName?: string; courseRegion?: string; courseId?: string; teeBox?: string; weather?: string; memo?: string; holeCount: 9 | 18; holes: Hole[] }) => {
-    const id = await createRound(user.uid, data);
+    // Firebase 응답을 기다리느라 '시작하는 중...' 화면에 멈추지 않도록
+    // 라운드 ID를 먼저 만들고 즉시 첫 홀 입력 화면으로 이동합니다.
+    const id = newRoundId(user.uid);
     const totals = calcTotals(data.holes);
-    setActiveRound({
+    const now = Date.now();
+    const nextRound: Round = {
       id,
       date: data.date,
       courseName: data.courseName,
@@ -82,10 +85,24 @@ export default function App() {
       totalPar: totals.totalPar,
       totalPutts: totals.totalPutts,
       finished: false,
-      createdAt: Date.now(),
-    });
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setActiveRound(nextRound);
     setHoleIndex(0);
     setScreen('holeEntry');
+    setSaveStatus('saving');
+
+    // 저장은 화면 전환 후 백그라운드에서 진행합니다.
+    // 네트워크가 느리거나 Firestore가 long-polling으로 연결되는 경우에도
+    // 사용자는 바로 기록을 시작할 수 있습니다.
+    void createRound(user.uid, data, id)
+      .then(() => flashSaved())
+      .catch((err) => {
+        console.error(err);
+        setSaveStatus('error');
+      });
   };
 
   const handleResumeRound = (round: Round) => {

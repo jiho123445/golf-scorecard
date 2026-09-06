@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
   collection,
-  addDoc,
   doc,
+  setDoc,
   updateDoc,
   deleteDoc,
   onSnapshot,
@@ -52,12 +52,19 @@ export function useRounds(uid: string | null) {
 }
 
 /** 새 라운드 생성. 각 홀은 Par만 채워진 상태로 시작한다. */
+export function newRoundId(uid: string): string {
+  return doc(roundsCollection(uid)).id;
+}
+
+/** 새 라운드를 지정한 ID로 저장한다. 클라이언트에서 먼저 화면 전환할 수 있도록 ID를 미리 생성한다. */
 export async function createRound(
   uid: string,
   data: { date: string; courseName: string; courseCourseName?: string; courseRegion?: string; courseId?: string; teeBox?: string; weather?: string; memo?: string; holeCount: HoleCount; holes: Hole[] },
+  roundId = newRoundId(uid),
 ): Promise<string> {
   const totals = calcTotals(data.holes);
-  const docRef = await addDoc(roundsCollection(uid), {
+  const roundRef = doc(db, 'users', uid, 'rounds', roundId);
+  await setDoc(roundRef, {
     date: data.date,
     courseName: data.courseName,
     courseCourseName: data.courseCourseName ?? '',
@@ -75,7 +82,7 @@ export async function createRound(
     createdAt: Date.now(),
     updatedAt: Date.now(),
   });
-  return docRef.id;
+  return roundId;
 }
 
 /** 홀 목록 갱신 + 합계 자동 재계산 (자동 저장에 사용) */
