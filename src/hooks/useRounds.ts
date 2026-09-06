@@ -3,7 +3,6 @@ import {
   collection,
   doc,
   setDoc,
-  updateDoc,
   deleteDoc,
   onSnapshot,
   query,
@@ -88,18 +87,18 @@ export async function createRound(
 /** 홀 목록 갱신 + 합계 자동 재계산 (자동 저장에 사용) */
 export async function saveHoles(uid: string, roundId: string, holes: Hole[]) {
   const totals = calcTotals(holes);
-  await updateDoc(doc(db, 'users', uid, 'rounds', roundId), {
+  await setDoc(doc(db, 'users', uid, 'rounds', roundId), {
     holes,
     totalScore: totals.totalScore,
     totalPar: totals.totalPar,
     totalPutts: totals.totalPutts,
     updatedAt: Date.now(),
-  });
+  }, { merge: true });
 }
 
 /** 라운드 종료 처리 */
 export async function finishRound(uid: string, roundId: string) {
-  await updateDoc(doc(db, 'users', uid, 'rounds', roundId), { finished: true, updatedAt: Date.now() });
+  await setDoc(doc(db, 'users', uid, 'rounds', roundId), { finished: true, updatedAt: Date.now() }, { merge: true });
 }
 
 /** 진행 중인 라운드를 완전히 삭제한다. (강제 종료) */

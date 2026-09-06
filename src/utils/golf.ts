@@ -7,7 +7,7 @@ export function createDefaultHoles(holeCount: HoleCount): Hole[] {
     par: 4,
     score: 0,
     putts: 0,
-    fairway: i >= 0 ? 'na' : 'na',
+    fairway: 'na',
     gir: null,
     penalty: 0,
   }));

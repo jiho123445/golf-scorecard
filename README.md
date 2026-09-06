@@ -35,3 +35,9 @@ npm run dev
 `src/data/golfCourses.ts`에 내장된 골프장 데이터를 검색하여 골프장명, 지역, 총 홀 수를 자동 설정할 수 있습니다.
 
 전국 전체 데이터 확장 기준은 `GOLF_DATA_SOURCE.md`를 참고하세요.
+
+
+## 배포용 프로젝트 구조
+이 ZIP은 압축을 풀면 바로 프로젝트 루트가 열리도록 구성되어 있습니다.
+`node_modules` 폴더는 포함하지 않았습니다. VS Code에서 `npm install` 후 `npm run dev`를 실행하세요.
+GitHub/Vercel은 `package.json`을 기준으로 필요한 패키지를 자동 설치합니다.

@@ -29,6 +29,8 @@ export default function App() {
   const [scorecardOrigin, setScorecardOrigin] = useState<ScorecardOrigin>('detail');
   const [detailRound, setDetailRound] = useState<Round | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [showTerminateModal, setShowTerminateModal] = useState(false);
+  const [showSaveWarning, setShowSaveWarning] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // 생성 요청이 아직 완료되기 전에 강제 종료되는 경우를 안전하게 처리합니다.
   const terminatedRoundIds = useRef<Set<string>>(new Set());
@@ -58,10 +60,14 @@ export default function App() {
     setSaveStatus('saving');
     try {
       await saveHoles(user.uid, activeRound.id, holes);
+      localStorage.removeItem(`golf-scorecard-draft-${activeRound.id}`);
+      setShowSaveWarning(false);
       flashSaved();
     } catch (err) {
       console.error(err);
+      localStorage.setItem(`golf-scorecard-draft-${activeRound.id}`, JSON.stringify({ ...activeRound, holes, updatedAt: Date.now() }));
       setSaveStatus('error');
+      setShowSaveWarning(true);
     }
   };
 
@@ -140,10 +146,22 @@ export default function App() {
 
   const handleFinishRound = async () => {
     if (!activeRound) return;
-    await persistActiveRound(activeRound.holes);
-    await finishRound(user.uid, activeRound.id);
-    setActiveRound((prev) => (prev ? { ...prev, finished: true } : prev));
+    const completed = { ...activeRound, finished: true };
+    // 화면을 Firebase 응답 때문에 멈추지 않게 먼저 완료 화면으로 이동합니다.
+    setActiveRound(completed);
     setScreen('summary');
+    setSaveStatus('saving');
+    try {
+      await saveHoles(user.uid, completed.id, completed.holes);
+      await finishRound(user.uid, completed.id);
+      localStorage.removeItem(`golf-scorecard-draft-${completed.id}`);
+      flashSaved();
+    } catch (err) {
+      console.error('라운드 종료 저장 실패:', err);
+      localStorage.setItem(`golf-scorecard-draft-${completed.id}`, JSON.stringify(completed));
+      setSaveStatus('error');
+      setShowSaveWarning(true);
+    }
   };
 
   const handleExitRound = async () => {
@@ -154,15 +172,17 @@ export default function App() {
 
   const handleForceTerminateRound = async () => {
     if (!activeRound) return;
+    setShowTerminateModal(true);
+  };
 
-    const confirmed = window.confirm(
-      '진행 중인 라운드를 강제로 종료하시겠습니까?\n\n현재까지 입력한 모든 기록이 삭제되며 복구할 수 없습니다.',
-    );
-    if (!confirmed) return;
+  const confirmForceTerminateRound = async () => {
+    if (!activeRound) return;
+    setShowTerminateModal(false);
 
     // 화면은 즉시 홈으로 이동시켜 Firebase 응답 지연 때문에 앱이 멈추지 않게 합니다.
     const roundId = activeRound.id;
     terminatedRoundIds.current.add(roundId);
+    localStorage.removeItem(`golf-scorecard-draft-${roundId}`);
     setActiveRound(null);
     setHoleIndex(0);
     setSaveStatus('idle');
@@ -236,6 +256,27 @@ export default function App() {
           }}
           onDone={handleFinishDone}
         />
+      )}
+
+      {showSaveWarning && screen === 'holeEntry' && (
+        <div className="fixed left-1/2 top-3 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-lg">
+          <p className="text-sm font-bold text-amber-800">⚠ 이 라운드는 아직 서버에 저장되지 않았어요.</p>
+          <p className="mt-1 text-xs text-amber-700">현재 기록은 이 기기에 임시 보관 중이며 연결이 복구되면 다시 저장할 수 있습니다.</p>
+          <button type="button" onClick={() => activeRound && void persistActiveRound(activeRound.holes)} className="mt-2 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white">다시 저장</button>
+        </div>
+      )}
+
+      {showTerminateModal && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-900">라운드를 강제 종료할까요?</h2>
+            <p className="mt-2 text-sm leading-6 text-gray-500">현재까지 입력한 기록이 삭제되며 복구할 수 없습니다.</p>
+            <div className="mt-6 flex gap-2">
+              <button type="button" onClick={() => setShowTerminateModal(false)} className="h-12 flex-1 rounded-xl bg-gray-100 font-semibold text-gray-700">취소</button>
+              <button type="button" onClick={() => void confirmForceTerminateRound()} className="h-12 flex-1 rounded-xl bg-red-500 font-bold text-white">강제 종료</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {screen === 'main' && (

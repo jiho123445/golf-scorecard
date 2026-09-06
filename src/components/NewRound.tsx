@@ -205,19 +205,19 @@ export function NewRound({ onBack, onStart }: NewRoundProps) {
               </select>
             ) : <input value={courseCourseName} onChange={(e) => changeFirstCourse(e.target.value)} placeholder="예: OUT" className="h-12 rounded-xl border border-gray-200 px-3" />}
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-500">{holeCount === 18 ? '두 번째 코스' : '티박스'}</label>
-            {holeCount === 18 && (isMultiNine || selectedCourse?.totalHoles === 18) ? (
-              availableCourses.length > 0 ? (
+          {holeCount === 18 && (isMultiNine || selectedCourse?.totalHoles === 18) ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-500">두 번째 코스</label>
+              {availableCourses.length > 0 ? (
                 <select value={secondCourseName} onChange={(e) => changeSecondCourse(e.target.value)} className="h-12 rounded-xl border border-gray-200 px-3">
                   <option value="">자동/선택 안 함</option>
                   {availableCourses.map((name) => <option key={name}>{name}</option>)}
                 </select>
-              ) : <input value={secondCourseName} onChange={(e) => changeSecondCourse(e.target.value)} placeholder="예: IN" className="h-12 rounded-xl border border-gray-200 px-3" />
-            ) : (
-              <select value={teeBox} onChange={(e) => setTeeBox(e.target.value)} className="h-12 rounded-xl border border-gray-200 px-3"><option>화이트</option><option>블루</option><option>블랙</option><option>레드</option></select>
-            )}
-          </div>
+              ) : <input value={secondCourseName} onChange={(e) => changeSecondCourse(e.target.value)} placeholder="예: IN" className="h-12 rounded-xl border border-gray-200 px-3" />}
+            </div>
+          ) : (
+            <div className="flex items-end pb-1 text-xs text-gray-400">9홀 라운드는 첫 번째 코스만 사용합니다.</div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
