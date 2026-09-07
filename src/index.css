@@ -74,3 +74,10 @@ input, select, textarea { font: inherit; }
   border-color: #16713f !important;
   box-shadow: 0 0 0 4px rgba(22,113,63,.10);
 }
+
+/* v4.5 premium polish */
+.app-shell::before{content:'';position:absolute;inset:0 0 auto 0;height:110px;background:linear-gradient(180deg,rgba(255,255,255,.72),transparent);pointer-events:none;z-index:0}
+.app-shell> *{position:relative;z-index:1}
+.app-shell button{font-weight:600}
+.app-shell button:focus-visible{outline:3px solid rgba(22,113,63,.28);outline-offset:2px}
+@media (max-width:480px){.app-shell{box-shadow:none}.app-shell .rounded-3xl{border-radius:24px!important}}
