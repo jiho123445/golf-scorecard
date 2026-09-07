@@ -74,7 +74,7 @@ export function calcStats(rounds: Round[]): RoundStats {
   if (finished.length === 0) {
     return { roundCount: 0, average: null, last5Average: null, last10Average: null, best: null, worst: null, averagePutts: null, fairwayRate: null, girRate: null };
   }
-  const sorted = [...finished].sort((a, b) => b.createdAt - a.createdAt);
+  const sorted = [...finished].sort((a, b) => (b.date.localeCompare(a.date)) || ((b.updatedAt ?? b.createdAt) - (a.updatedAt ?? a.createdAt)));
   const scores = sorted.map((r) => r.totalScore);
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
   const last5 = scores.slice(0, 5);

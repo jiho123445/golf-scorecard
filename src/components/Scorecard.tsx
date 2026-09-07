@@ -7,9 +7,10 @@ interface ScorecardProps {
   round: Round;
   onBack: () => void;
   onEditHole?: (index: number) => void;
+  onHome?: () => void | Promise<void>;
 }
 
-export function Scorecard({ round, onBack, onEditHole }: ScorecardProps) {
+export function Scorecard({ round, onBack, onEditHole, onHome }: ScorecardProps) {
   const isPark = (round.sportType ?? 'golf') === 'park';
   const { front, back } = splitNines(round.holes);
   const outTotals = calcTotals(front);
@@ -59,6 +60,7 @@ export function Scorecard({ round, onBack, onEditHole }: ScorecardProps) {
           {isPark && <div className="text-right"><p className="text-xs text-white/70">PARK GOLF</p><p className="text-xl font-bold tabular-nums">{round.parkPlayers?.length ?? 1}명 · {round.holeCount}홀</p></div>}
         </div>
       </div>
+      {onHome && <div className="border-t border-gray-100 px-4 py-3"><button type="button" onClick={() => void onHome()} className="h-14 w-full rounded-xl bg-brand px-4 py-3 text-base font-bold text-white">홈으로 이동</button></div>}
     </div>
   );
 }

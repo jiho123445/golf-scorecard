@@ -82,12 +82,13 @@ export async function createRound(
     finished: false,
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    currentHoleIndex: 0,
   });
   return roundId;
 }
 
 /** 홀 목록 갱신 + 합계 자동 재계산 (자동 저장에 사용) */
-export async function saveHoles(uid: string, roundId: string, holes: Hole[], parkPlayers?: ParkPlayer[]) {
+export async function saveHoles(uid: string, roundId: string, holes: Hole[], parkPlayers?: ParkPlayer[], currentHoleIndex?: number) {
   const totals = calcTotals(holes);
   await setDoc(doc(db, 'users', uid, 'rounds', roundId), {
     holes,
@@ -96,6 +97,7 @@ export async function saveHoles(uid: string, roundId: string, holes: Hole[], par
     totalPar: totals.totalPar,
     totalPutts: totals.totalPutts,
     updatedAt: Date.now(),
+    ...(typeof currentHoleIndex === 'number' ? { currentHoleIndex } : {}),
   }, { merge: true });
 }
 

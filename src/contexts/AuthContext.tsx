@@ -4,27 +4,37 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  updateProfile,
   type User,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
 interface AuthContextValue {
   user: User | null;
+  displayName: string;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateDisplayName: (name: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [displayName, setDisplayName] = useState(() => localStorage.getItem('golf-scorecard-display-name') || '김지호');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
+      if (u) {
+        const saved = localStorage.getItem('golf-scorecard-display-name');
+        const nextName = saved || u.displayName?.trim() || '김지호';
+        setDisplayName(nextName);
+        if (!saved && nextName) localStorage.setItem('golf-scorecard-display-name', nextName);
+      }
       setLoading(false);
     });
     return unsub;
@@ -42,8 +52,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
   };
 
+  const updateDisplayName = async (name: string) => {
+    if (!auth.currentUser) throw new Error('로그인이 필요합니다.');
+    const cleaned = name.trim();
+    if (!cleaned) throw new Error('이름을 입력해주세요.');
+    await updateProfile(auth.currentUser, { displayName: cleaned });
+    localStorage.setItem('golf-scorecard-display-name', cleaned);
+    setDisplayName(cleaned);
+    setUser(auth.currentUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, displayName, loading, login, signup, logout, updateDisplayName }}>
       {children}
     </AuthContext.Provider>
   );

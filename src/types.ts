@@ -6,6 +6,7 @@ export interface ParkPlayer {
   id: string;
   name: string;
   scores: number[];
+  isOwner?: boolean;
 }
 
 export interface Hole {
@@ -18,6 +19,7 @@ export interface Hole {
   gir?: boolean | null;
   penalty?: number;
   notes?: string;
+  photos?: string[];
 }
 
 export interface Round {
@@ -40,6 +42,7 @@ export interface Round {
   finished: boolean;
   createdAt: number;
   updatedAt?: number;
+  currentHoleIndex?: number;
 }
 
 export interface RoundStats {
