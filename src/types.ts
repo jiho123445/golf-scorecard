@@ -41,8 +41,6 @@ export interface Round {
   finished: boolean;
   createdAt: number;
   updatedAt?: number;
-<<<<<<< Updated upstream
-=======
 }
 
 /** 새 라운드 시작 시 화면(NewRound/NewParkRound)에서 App으로 넘겨주는 입력값. */
@@ -58,7 +56,6 @@ export interface NewRoundInput {
   holeCount: HoleCount;
   holes: Hole[];
   parkPlayers?: ParkPlayer[];
->>>>>>> Stashed changes
 }
 
 export interface RoundStats {

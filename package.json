@@ -1,11 +1,7 @@
 {
   "name": "golf-scorecard",
   "private": true,
-<<<<<<< Updated upstream
-  "version": "6.4.1",
-=======
   "version": "7.1.0",
->>>>>>> Stashed changes
   "type": "module",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
