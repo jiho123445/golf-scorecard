@@ -9,8 +9,11 @@ interface Props {
 /**
  * 개인정보처리방침 / 이용약관 화면.
  * ⚠️ 아래 내용은 소규모 서비스를 위한 일반적인 템플릿이며 법률 자문이 아닙니다.
- *    【】로 표시된 부분(운영자명/연락처/시행일 등)을 실제 정보로 반드시 채워주세요.
+ *    운영자명/연락처/시행일은 실제 정보로 채워져 있으니, 내용이 바뀌면 여기 값도 함께 수정해주세요.
  */
+const OPERATOR_NAME = '사단법인 너브내행복나눔재단';
+const OPERATOR_CONTACT = 'jiho123445@gmail.com';
+const EFFECTIVE_DATE = '2026-09-08';
 export function LegalPage({ kind, onBack }: Props) {
   return (
     <div className="flex flex-1 flex-col">
@@ -35,8 +38,7 @@ function PrivacyContent() {
   return (
     <>
       <p className="mb-6 text-xs text-slate-400">
-        본 방침은 일반적인 템플릿이며 법률 자문이 아닙니다. 【운영자명】은 실제 운영 주체명으로,
-        【시행일】은 실제 배포일로 반드시 교체해주세요.
+        본 방침은 일반적인 템플릿이며 법률 자문이 아닙니다.
       </p>
       <Section title="1. 수집하는 개인정보 항목">
         <p>이메일 주소(로그인용), 표시 이름, 골프·파크골프 라운드 기록(날짜, 코스명, 스코어 등)</p>
@@ -48,7 +50,7 @@ function PrivacyContent() {
         <p>회원 탈퇴 시 즉시 파기합니다. 단, 관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관합니다.</p>
       </Section>
       <Section title="4. 개인정보의 제3자 제공">
-        <p>【운영자명】은 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다.</p>
+        <p>{OPERATOR_NAME}은 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다.</p>
       </Section>
       <Section title="5. 개인정보의 처리 위탁">
         <p>서비스 운영을 위해 Google Firebase(인증·데이터베이스), Vercel(호스팅)을 이용하며, 이 과정에서 해당 사업자의 서버(해외 포함)에 정보가 저장될 수 있습니다.</p>
@@ -57,11 +59,11 @@ function PrivacyContent() {
         <p>이용자는 언제든 본인의 개인정보 조회, 수정, 삭제(회원 탈퇴)를 요청할 수 있으며, 앱 내 설정 화면에서 직접 처리할 수 있습니다.</p>
       </Section>
       <Section title="7. 개인정보 보호책임자">
-        <p>담당자: 【담당자명】</p>
-        <p>연락처: 【이메일 또는 전화번호】</p>
+        <p>운영: {OPERATOR_NAME}</p>
+        <p>연락처: {OPERATOR_CONTACT}</p>
       </Section>
       <Section title="8. 시행일">
-        <p>이 방침은 【시행일】부터 적용됩니다.</p>
+        <p>이 방침은 {EFFECTIVE_DATE}부터 적용됩니다.</p>
       </Section>
     </>
   );
@@ -71,10 +73,10 @@ function TermsContent() {
   return (
     <>
       <p className="mb-6 text-xs text-slate-400">
-        본 약관은 일반적인 템플릿이며 법률 자문이 아닙니다. 【운영자명】, 【시행일】을 실제 정보로 교체해주세요.
+        본 약관은 일반적인 템플릿이며 법률 자문이 아닙니다.
       </p>
       <Section title="제1조 (목적)">
-        <p>이 약관은 【운영자명】(이하 "운영자")가 제공하는 골프 스코어카드 서비스(이하 "서비스")의 이용과 관련하여 운영자와 이용자의 권리·의무 및 책임사항을 규정합니다.</p>
+        <p>이 약관은 {OPERATOR_NAME}(이하 "운영자")가 제공하는 골프 스코어카드 서비스(이하 "서비스")의 이용과 관련하여 운영자와 이용자의 권리·의무 및 책임사항을 규정합니다.</p>
       </Section>
       <Section title="제2조 (서비스의 제공)">
         <p>서비스는 골프·파크골프 라운드 기록, 통계 제공 등의 기능을 무료로 제공합니다.</p>
@@ -92,7 +94,7 @@ function TermsContent() {
         <p>운영자는 이용자가 입력한 기록의 정확성에 대해 보증하지 않으며, 천재지변 등 불가항력으로 인한 서비스 중단에 대해 책임을 지지 않습니다.</p>
       </Section>
       <Section title="제7조 (시행일)">
-        <p>이 약관은 【시행일】부터 적용됩니다.</p>
+        <p>이 약관은 {EFFECTIVE_DATE}부터 적용됩니다.</p>
       </Section>
     </>
   );
