@@ -3,7 +3,7 @@ interface Props{email:string;displayName:string;onChangeName:(name:string)=>void
 export function Settings({email,displayName,onChangeName,onLogout,onDeleteAccount,onOpenAdmin}:Props){
   const [name,setName]=useState(displayName);
   const [deleting,setDeleting]=useState(false);
-  const save=()=>{const next=name.trim();if(next)onChangeName(next)};
+  const save=()=>{const next=name.trim();if(!next)return;onChangeName(next);alert('저장되었습니다.')};
   const adminEmail=import.meta.env.VITE_ADMIN_EMAIL as string|undefined;
   const isAdmin=!!adminEmail&&email===adminEmail;
 
