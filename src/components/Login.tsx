@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { loadLastEmail, saveLastEmail } from '../utils/lastEmail';
 
 export function Login() {
   const { login, signup, resetPassword } = useAuth();
   const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login');
-  const [email, setEmail] = useState('');
+  // 이 기기에서 마지막으로 로그인/가입에 성공한 이메일을 기억해뒀다가 자동으로 채워준다.
+  const [email, setEmail] = useState(() => loadLastEmail());
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -18,8 +20,10 @@ export function Login() {
     try {
       if (mode === 'login') {
         await login(email, password);
+        saveLastEmail(email);
       } else if (mode === 'signup') {
         await signup(email, password);
+        saveLastEmail(email);
       } else {
         await resetPassword(email);
         setInfo('비밀번호 재설정 메일을 보냈습니다. 메일함(스팸함 포함)을 확인해주세요.');
@@ -44,6 +48,8 @@ export function Login() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
           type="email"
+          name="email"
+          autoComplete="email"
           required
           placeholder="이메일"
           value={email}
@@ -53,6 +59,8 @@ export function Login() {
         {mode !== 'reset' && (
           <input
             type="password"
+            name="password"
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
             required
             minLength={6}
             placeholder="비밀번호 (6자 이상)"
