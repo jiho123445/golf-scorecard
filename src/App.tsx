@@ -12,6 +12,7 @@ import { Scorecard } from './components/Scorecard';
 import { RoundSummary } from './components/RoundSummary';
 import { ParkRoundSummary } from './components/ParkRoundSummary';
 import { Records } from './components/Records';
+import { EditHoleModal } from './components/EditHoleModal';
 import { BottomNav, type Tab } from './components/BottomNav';
 import { Stats } from './components/Stats';
 import { Settings } from './components/Settings';
@@ -31,7 +32,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('home'); const [screen, setScreen] = useState<Screen>('main');
   const [activeRound, setActiveRound] = useState<Round | null>(null); const [holeIndex, setHoleIndex] = useState(0);
   const [scorecardOrigin, setScorecardOrigin] = useState<ScorecardOrigin>('detail'); const [detailRound, setDetailRound] = useState<Round | null>(null);
-  const [recoveryDrafts,setRecoveryDrafts]=useState<Round[]>([]); const [displayName,setDisplayName]=useState(()=>loadProfileName('김지호')); const [showFrontNine,setShowFrontNine]=useState(false); const [showFinishWarning,setShowFinishWarning]=useState(false); const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle'); const [showTerminateModal, setShowTerminateModal] = useState(false); const [showSaveWarning, setShowSaveWarning] = useState(false);
+  const [recoveryDrafts,setRecoveryDrafts]=useState<Round[]>([]); const [displayName,setDisplayName]=useState(()=>loadProfileName('김지호')); const [showFrontNine,setShowFrontNine]=useState(false); const [showFinishWarning,setShowFinishWarning]=useState(false); const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle'); const [showTerminateModal, setShowTerminateModal] = useState(false); const [showSaveWarning, setShowSaveWarning] = useState(false); const [editHoleIndex,setEditHoleIndex]=useState<number|null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null); const terminatedRoundIds = useRef<Set<string>>(new Set());
   const sportOf=(r:Round):SportType=>r.sportType ?? 'golf';
   const golfRounds=useMemo(()=>rounds.filter(r=>sportOf(r)==='golf'),[rounds]); const parkRounds=useMemo(()=>rounds.filter(r=>sportOf(r)==='park'),[rounds]);
@@ -76,20 +77,34 @@ export default function App() {
     }
     if(activeRound?.id===r.id){setActiveRound(null);setHoleIndex(0);setSaveStatus('idle');setScreen('main')}
   };
+  // 완료된 라운드의 스코어카드에서 특정 홀 기록을 잘못 입력했을 때 바로 고칠 수 있게 한다.
+  const handleSaveDetailHole=async(index:number,patch:Partial<Hole>)=>{
+    if(!detailRound)return;
+    const holes=detailRound.holes.map((h,i)=>i===index?{...h,...patch}:h);
+    const updated={...detailRound,holes,...calcTotals(holes)};
+    setDetailRound(updated);
+    try{
+      await saveHoles(user.uid,detailRound.id,holes);
+    }catch(err){
+      console.error(err);
+      alert('수정 내용을 저장하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.');
+    }
+  };
   const isPark=activeRound&&sportOf(activeRound)==='park';
   return <div className="app-shell">
     {screen==='sportSelect'&&<SportSelect onBack={()=>setScreen('main')} onSelect={s=>setScreen(s==='golf'?'newRound':'newParkRound')}/>}
     {screen==='newRound'&&<NewRound onBack={()=>setScreen('sportSelect')} onStart={d=>startRound(d,'golf')}/>}
     {screen==='newParkRound'&&<NewParkRound onBack={()=>setScreen('sportSelect')} onStart={d=>startRound(d,'park')}/>}
     {screen==='holeEntry'&&activeRound&&(isPark?<ParkHoleEntry displayName={displayName} round={activeRound} holeIndex={holeIndex} saveStatus={saveStatus} onUpdateParkScore={handleUpdateParkScore} onGoToHole={handleGoToHole} onFinish={requestFinishRound} onExit={handleExitRound} onForceTerminate={()=>setShowTerminateModal(true)} onViewScorecard={()=>{setScorecardOrigin('inProgress');setScreen('scorecard')}}/>:<HoleEntry displayName={displayName} round={activeRound} holeIndex={holeIndex} saveStatus={saveStatus} onUpdateHole={handleUpdateHole} onGoToHole={handleGoToHole} onFinish={requestFinishRound} onViewScorecard={()=>{setScorecardOrigin('inProgress');setScreen('scorecard')}} onExit={handleExitRound} onForceTerminate={()=>setShowTerminateModal(true)}/>)}
-    {screen==='scorecard'&&<Scorecard round={scorecardOrigin==='inProgress'?activeRound!:detailRound!} onBack={()=>setScreen(scorecardOrigin==='inProgress'?'holeEntry':'main')} onEditHole={scorecardOrigin==='inProgress'?(i)=>{setHoleIndex(i);setScreen('holeEntry')}:undefined}/>}
+    {screen==='scorecard'&&<Scorecard round={scorecardOrigin==='inProgress'?activeRound!:detailRound!} onBack={()=>setScreen(scorecardOrigin==='inProgress'?'holeEntry':'main')} onEditHole={scorecardOrigin==='inProgress'?(i)=>{setHoleIndex(i);setScreen('holeEntry')}:(i)=>setEditHoleIndex(i)}/>}
+    {editHoleIndex!==null&&detailRound&&<EditHoleModal hole={detailRound.holes[editHoleIndex]} onClose={()=>setEditHoleIndex(null)} onSave={(patch)=>handleSaveDetailHole(editHoleIndex,patch)}/>}
     {screen==='summary'&&activeRound&&(isPark?<ParkRoundSummary round={activeRound} onViewScorecard={()=>{setScorecardOrigin('inProgress');setScreen('scorecard')}} onDone={done}/>:<RoundSummary round={activeRound} onViewScorecard={()=>{setScorecardOrigin('inProgress');setScreen('scorecard')}} onDone={done}/>)}
     {showSaveWarning&&screen==='holeEntry'&&<div className="fixed left-1/2 top-3 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-lg"><p className="text-sm font-bold text-amber-800">⚠ 이 기록은 아직 서버에 저장되지 않았어요.</p><p className="mt-1 text-xs text-amber-700">현재 기록은 이 기기에 임시 보관 중입니다.</p><button onClick={()=>activeRound&&void persistActiveRound(activeRound.holes)} className="mt-2 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white">다시 저장</button></div>}
     {showFinishWarning&&<div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center"><div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"><div className="mb-3 text-3xl">⚠️</div><h2 className="text-lg font-bold">입력하지 않은 홀이 있습니다</h2><p className="mt-2 text-sm text-gray-500">미입력 홀: {activeRound?.holes.filter(h=>h.score<=0).map(h=>h.number+'번').join(', ')}</p><p className="mt-1 text-xs text-gray-400">미입력 상태로 종료하면 기록과 통계의 정확도가 떨어질 수 있습니다.</p><div className="mt-6 flex gap-2"><button onClick={()=>setShowFinishWarning(false)} className="h-12 flex-1 rounded-xl bg-gray-100 font-semibold">계속 입력</button><button onClick={()=>void completeFinishRound()} className="h-12 flex-1 rounded-xl bg-brand font-bold text-white">그래도 종료</button></div></div></div>}
     {showTerminateModal&&<div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center"><div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"><h2 className="text-lg font-bold">현재 라운드를 나갈까요?</h2><p className="mt-2 text-sm text-gray-500">현재까지 입력한 기록이 삭제되며 복구할 수 없습니다.</p><div className="mt-6 flex gap-2"><button onClick={()=>setShowTerminateModal(false)} className="h-12 flex-1 rounded-xl bg-gray-100 font-semibold">취소</button><button onClick={()=>void confirmForceTerminateRound()} className="h-12 flex-1 rounded-xl bg-red-500 font-bold text-white">기록 삭제하고 종료</button></div></div></div>}
     {screen==='main'&&recoveryDrafts.length>0&&<div className="fixed left-1/2 top-3 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white p-3 shadow-xl"><p className="text-sm font-bold text-emerald-800">저장되지 않은 임시 기록 {recoveryDrafts.length}건</p><div className="mt-2 flex gap-2"><button className="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white" onClick={()=>{const d=recoveryDrafts[0];setActiveRound(d);setHoleIndex(Math.max(0,d.holes.findIndex(h=>h.score<=0)));setScreen('holeEntry');setRecoveryDrafts([])}}>복구하기</button><button className="rounded-lg bg-gray-100 px-3 py-2 text-xs" onClick={()=>setRecoveryDrafts([])}>나중에</button></div></div>}
     {showFrontNine&&<div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl"><div className="text-4xl">🎉</div><h2 className="mt-3 text-xl font-bold">전반 9홀이 끝났습니다!</h2><p className="mt-2 text-sm text-gray-500">수고하셨어요. 잠시 쉬었다가 후반 라운드를 이어가세요.</p><button onClick={continueBackNine} className="mt-6 h-13 w-full rounded-2xl bg-brand px-5 py-4 font-bold text-white">후반 10홀 시작하기</button></div></div>}
-    {screen==='main'&&<>{tab==='home'&&<Home displayName={displayName} golfStats={golfStats} parkStats={parkStats} recentGolf={recentGolf} recentPark={recentPark} inProgressRounds={inProgressRounds} onStart={()=>setScreen('sportSelect')} onResume={handleResumeRound} onOpen={r=>openDetail(r,'home')} onDeleteInProgress={handleDeleteInProgressRound}/>} {tab==='records'&&<Records rounds={rounds} onOpenRound={r=>openDetail(r,'records')} onDelete={async r=>{if(!confirm('이 기록을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await deleteRound(user.uid,r.id);if(detailRound?.id===r.id){setDetailRound(null);setScreen('main')}}catch(e){console.error(e);alert('삭제하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.')}}}/>} {tab==='stats'&&<Stats golfStats={golfStats} parkStats={parkStats} golfRounds={golfRounds} parkRounds={parkRounds}/>} {tab==='settings'&&<Settings email={user.email??''} displayName={displayName} onChangeName={(name)=>{saveProfileName(name);setDisplayName(name)}} onLogout={logout}/>}<BottomNav active={tab} onChange={setTab}/></>}
+    {screen==='main'&&<>{tab==='home'&&<Home displayName={displayName} golfStats={golfStats} parkStats={parkStats} recentGolf={recentGolf} recentPark={recentPark} inProgressRounds={inProgressRounds} onStart={()=>setScreen('sportSelect')} onResume={handleResumeRound} onOpen={r=>openDetail(r,'home')} onDeleteInProgress={handleDeleteInProgressRound} onViewRecords={()=>setTab('records')}/>} {tab==='records'&&<Records rounds={rounds} onOpenRound={r=>openDetail(r,'records')} onDelete={async r=>{if(!confirm('이 기록을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await deleteRound(user.uid,r.id);if(detailRound?.id===r.id){setDetailRound(null);setScreen('main')}}catch(e){console.error(e);alert('삭제하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.')}}}/>} {tab==='stats'&&<Stats golfStats={golfStats} parkStats={parkStats} golfRounds={golfRounds} parkRounds={parkRounds}/>} {tab==='settings'&&<Settings email={user.email??''} displayName={displayName} onChangeName={(name)=>{saveProfileName(name);setDisplayName(name)}} onLogout={logout}/>}<BottomNav active={tab} onChange={setTab}/></>}
   </div>;
 }
 function FullScreenMessage({text}:{text:string}){return <div className="app-shell items-center justify-center"><p className="text-sm text-gray-400">{text}</p></div>}
