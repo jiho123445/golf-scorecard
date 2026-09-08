@@ -1,3 +1,5 @@
+![테스트 및 빌드 검증](https://github.com/jiho123445/golf-scorecard/actions/workflows/ci.yml/badge.svg)
+
 # Happy Golf Scorecard v3.1
 
 골프와 파크골프를 분리 기록하는 통합 스포츠 스코어카드입니다.
