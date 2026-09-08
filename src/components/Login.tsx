@@ -2,22 +2,27 @@ import { useState, type FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function Login() {
-  const { login, signup } = useAuth();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const { login, signup, resetPassword } = useAuth();
+  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     setBusy(true);
     try {
       if (mode === 'login') {
         await login(email, password);
-      } else {
+      } else if (mode === 'signup') {
         await signup(email, password);
+      } else {
+        await resetPassword(email);
+        setInfo('비밀번호 재설정 메일을 보냈습니다. 메일함(스팸함 포함)을 확인해주세요.');
       }
     } catch (err) {
       setError(toFriendlyMessage(err));
@@ -45,36 +50,54 @@ export function Login() {
           onChange={(e) => setEmail(e.target.value)}
           className="h-12 rounded-xl border border-gray-200 px-4 text-base focus:border-brand focus:outline-none"
         />
-        <input
-          type="password"
-          required
-          minLength={6}
-          placeholder="비밀번호 (6자 이상)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="h-12 rounded-xl border border-gray-200 px-4 text-base focus:border-brand focus:outline-none"
-        />
+        {mode !== 'reset' && (
+          <input
+            type="password"
+            required
+            minLength={6}
+            placeholder="비밀번호 (6자 이상)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="h-12 rounded-xl border border-gray-200 px-4 text-base focus:border-brand focus:outline-none"
+          />
+        )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
+        {info && <p className="text-sm text-emerald-600">{info}</p>}
 
         <button
           type="submit"
           disabled={busy}
           className="mt-2 h-12 rounded-xl bg-brand text-base font-semibold text-white active:bg-brand-dark disabled:opacity-60"
         >
-          {busy ? '처리 중...' : mode === 'login' ? '로그인' : '회원가입'}
+          {busy ? '처리 중...' : mode === 'login' ? '로그인' : mode === 'signup' ? '회원가입' : '재설정 메일 보내기'}
         </button>
       </form>
+
+      {mode === 'login' && (
+        <button
+          type="button"
+          onClick={() => {
+            setError(null);
+            setInfo(null);
+            setMode('reset');
+          }}
+          className="mt-3 text-sm text-gray-400 underline underline-offset-2"
+        >
+          비밀번호를 잊으셨나요?
+        </button>
+      )}
 
       <button
         type="button"
         onClick={() => {
           setError(null);
+          setInfo(null);
           setMode(mode === 'login' ? 'signup' : 'login');
         }}
         className="mt-4 text-sm text-gray-500 underline underline-offset-2"
       >
-        {mode === 'login' ? '계정이 없으신가요? 회원가입' : '이미 계정이 있으신가요? 로그인'}
+        {mode === 'signup' ? '이미 계정이 있으신가요? 로그인' : mode === 'reset' ? '로그인으로 돌아가기' : '계정이 없으신가요? 회원가입'}
       </button>
     </div>
   );
@@ -93,6 +116,9 @@ function toFriendlyMessage(err: unknown): string {
   }
   if (code.includes('invalid-email')) {
     return '이메일 형식이 올바르지 않습니다.';
+  }
+  if (code.includes('too-many-requests')) {
+    return '너무 많이 시도했습니다. 잠시 후 다시 시도해주세요.';
   }
   return '문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
 }

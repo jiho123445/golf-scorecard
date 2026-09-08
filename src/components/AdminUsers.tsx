@@ -20,6 +20,10 @@ export function AdminUsers({ onBack, getToken }: Props) {
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyUid, setBusyUid] = useState<string | null>(null);
+<<<<<<< Updated upstream
+=======
+  const [query, setQuery] = useState('');
+>>>>>>> Stashed changes
 
   const load = async () => {
     setError(null);
@@ -61,6 +65,11 @@ export function AdminUsers({ onBack, getToken }: Props) {
     }
   };
 
+<<<<<<< Updated upstream
+=======
+  const filtered = users?.filter((u) => u.email.toLowerCase().includes(query.trim().toLowerCase()));
+
+>>>>>>> Stashed changes
   return (
     <div className="flex flex-1 flex-col">
       <ScreenHeader title="회원 관리" onBack={onBack} />
@@ -73,9 +82,31 @@ export function AdminUsers({ onBack, getToken }: Props) {
             </button>
           </div>
         )}
+<<<<<<< Updated upstream
         {users === null && !error && <p className="text-sm text-gray-400">불러오는 중...</p>}
         {users?.length === 0 && <p className="text-sm text-gray-400">가입된 회원이 없습니다.</p>}
         {users?.map((u) => (
+=======
+        {users && users.length > 0 && (
+          <>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="이메일로 검색"
+              className="premium-input h-11"
+            />
+            <p className="text-xs text-gray-400">
+              전체 {users.length}명 · 검색 {filtered?.length ?? 0}명
+            </p>
+          </>
+        )}
+        {users === null && !error && <p className="text-sm text-gray-400">불러오는 중...</p>}
+        {users?.length === 0 && <p className="text-sm text-gray-400">가입된 회원이 없습니다.</p>}
+        {users && users.length > 0 && filtered?.length === 0 && (
+          <p className="text-sm text-gray-400">검색 결과가 없습니다.</p>
+        )}
+        {filtered?.map((u) => (
+>>>>>>> Stashed changes
           <div key={u.uid} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

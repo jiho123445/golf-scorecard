@@ -17,6 +17,7 @@ import { BottomNav, type Tab } from './components/BottomNav';
 import { Stats } from './components/Stats';
 import { Settings } from './components/Settings';
 import { AdminUsers } from './components/AdminUsers';
+<<<<<<< Updated upstream
 import { createRound, deleteRound, finishRound, newRoundId, saveHoles, useRounds } from './hooks/useRounds';
 import { calcStats, calcTotals } from './utils/golf';
 import { loadDrafts, removeDraft, saveDraft } from './utils/draft';
@@ -24,16 +25,36 @@ import { loadProfileName, saveProfileName } from './utils/profile';
 import type { Hole, ParkPlayer, Round, SportType } from './types';
 
 type Screen = 'main' | 'sportSelect' | 'newRound' | 'newParkRound' | 'holeEntry' | 'scorecard' | 'summary' | 'admin';
+=======
+import { LegalPage } from './components/LegalPage';
+import { createRound, deleteRound, finishRound, newRoundId, saveHoles, useRounds } from './hooks/useRounds';
+import { calcStats, calcTotals } from './utils/golf';
+import { loadDrafts, removeDraft, saveDraft } from './utils/draft';
+import { useProfile } from './hooks/useProfile';
+import type { Hole, NewRoundInput, ParkPlayer, Round, SportType } from './types';
+
+type Screen = 'main' | 'sportSelect' | 'newRound' | 'newParkRound' | 'holeEntry' | 'scorecard' | 'summary' | 'admin' | 'privacy' | 'terms';
+>>>>>>> Stashed changes
 type ScorecardOrigin = 'inProgress' | 'detail';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 export default function App() {
+<<<<<<< Updated upstream
   const { user, loading: authLoading, logout } = useAuth();
   const { rounds } = useRounds(user?.uid ?? null);
   const [tab, setTab] = useState<Tab>('home'); const [screen, setScreen] = useState<Screen>('main');
   const [activeRound, setActiveRound] = useState<Round | null>(null); const [holeIndex, setHoleIndex] = useState(0);
   const [scorecardOrigin, setScorecardOrigin] = useState<ScorecardOrigin>('detail'); const [detailRound, setDetailRound] = useState<Round | null>(null);
   const [recoveryDrafts,setRecoveryDrafts]=useState<Round[]>([]); const [displayName,setDisplayName]=useState(()=>loadProfileName('김지호')); const [showFrontNine,setShowFrontNine]=useState(false); const [showFinishWarning,setShowFinishWarning]=useState(false); const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle'); const [showTerminateModal, setShowTerminateModal] = useState(false); const [showSaveWarning, setShowSaveWarning] = useState(false); const [editHoleIndex,setEditHoleIndex]=useState<number|null>(null);
+=======
+  const { user, loading: authLoading, logout, resendVerificationEmail } = useAuth();
+  const { rounds } = useRounds(user?.uid ?? null);
+  const { displayName, changeName } = useProfile(user?.uid ?? null);
+  const [tab, setTab] = useState<Tab>('home'); const [screen, setScreen] = useState<Screen>('main');
+  const [activeRound, setActiveRound] = useState<Round | null>(null); const [holeIndex, setHoleIndex] = useState(0);
+  const [scorecardOrigin, setScorecardOrigin] = useState<ScorecardOrigin>('detail'); const [detailRound, setDetailRound] = useState<Round | null>(null);
+  const [recoveryDrafts,setRecoveryDrafts]=useState<Round[]>([]); const [showFrontNine,setShowFrontNine]=useState(false); const [showFinishWarning,setShowFinishWarning]=useState(false); const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle'); const [showTerminateModal, setShowTerminateModal] = useState(false); const [showSaveWarning, setShowSaveWarning] = useState(false); const [editHoleIndex,setEditHoleIndex]=useState<number|null>(null);
+>>>>>>> Stashed changes
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null); const terminatedRoundIds = useRef<Set<string>>(new Set());
   const sportOf=(r:Round):SportType=>r.sportType ?? 'golf';
   const golfRounds=useMemo(()=>rounds.filter(r=>sportOf(r)==='golf'),[rounds]); const parkRounds=useMemo(()=>rounds.filter(r=>sportOf(r)==='park'),[rounds]);
@@ -53,7 +74,11 @@ export default function App() {
 
   const flashSaved=()=>{setSaveStatus('saved');if(saveTimer.current)clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>setSaveStatus('idle'),1500)};
   const persistActiveRound=async(holes:Hole[], parkPlayers?:ParkPlayer[])=>{if(!activeRound)return; const snapshot={...activeRound,holes,parkPlayers:parkPlayers??activeRound.parkPlayers,...calcTotals(holes),updatedAt:Date.now()}; saveDraft(snapshot);setSaveStatus('saving');try{await saveHoles(user.uid,activeRound.id,holes,parkPlayers);removeDraft(activeRound.id);setShowSaveWarning(false);flashSaved()}catch(err){console.error(err);saveDraft(snapshot);setSaveStatus('error');setShowSaveWarning(true)}};
+<<<<<<< Updated upstream
   const startRound=async(data:any,sportType:SportType)=>{const id=newRoundId(user.uid),totals=calcTotals(data.holes),now=Date.now();const next:Round={id,sportType,status:'active',...data,totalScore:totals.totalScore,totalPar:totals.totalPar,totalPutts:totals.totalPutts,finished:false,createdAt:now,updatedAt:now};setActiveRound(next);setHoleIndex(0);setScreen('holeEntry');setSaveStatus('saving');void createRound(user.uid,{...data,sportType},id).then(async()=>{if(terminatedRoundIds.current.has(id)){await deleteRound(user.uid,id).catch(()=>undefined);terminatedRoundIds.current.delete(id);return}flashSaved()}).catch(err=>{console.error(err);setSaveStatus('error')})};
+=======
+  const startRound=async(data:NewRoundInput,sportType:SportType)=>{const id=newRoundId(user.uid),totals=calcTotals(data.holes),now=Date.now();const next:Round={id,sportType,status:'active',...data,totalScore:totals.totalScore,totalPar:totals.totalPar,totalPutts:totals.totalPutts,finished:false,createdAt:now,updatedAt:now};setActiveRound(next);setHoleIndex(0);setScreen('holeEntry');setSaveStatus('saving');void createRound(user.uid,{...data,sportType},id).then(async()=>{if(terminatedRoundIds.current.has(id)){await deleteRound(user.uid,id).catch(()=>undefined);terminatedRoundIds.current.delete(id);return}flashSaved()}).catch(err=>{console.error(err);setSaveStatus('error')})};
+>>>>>>> Stashed changes
   const handleResumeRound=(round:Round)=>{const draft=loadDrafts().find(d=>d.id===round.id); const source=draft&&((draft.updatedAt||0)>(round.updatedAt||0))?draft:round; const i=source.holes.findIndex(h=>h.score===0);setActiveRound(source);setHoleIndex(i===-1?round.holes.length-1:i);setScreen('holeEntry')};
   const handleUpdateHole=(index:number,patch:Partial<Hole>)=>{if(!activeRound)return;setActiveRound(prev=>{if(!prev)return prev;const holes=prev.holes.map((h,i)=>i===index?{...h,...patch}:h);const next={...prev,holes,...calcTotals(holes),updatedAt:Date.now()}; saveDraft(next); return next})};
   const handleUpdateParkScore=(playerIndex:number,index:number,score:number)=>{if(!activeRound)return;setActiveRound(prev=>{if(!prev)return prev;const players=(prev.parkPlayers?.length?prev.parkPlayers:[{id:'player-1',name:'나',scores:prev.holes.map(h=>h.score)}]).map((player,i)=>i===playerIndex?{...player,scores:player.scores.map((v,j)=>j===index?score:v)}:player);const holes=prev.holes.map((h,i)=>i===index?{...h,score:players[0].scores[i]??0}:h);const next={...prev,parkPlayers:players,holes,...calcTotals(holes),updatedAt:Date.now()}; saveDraft(next); return next})};
@@ -114,8 +139,15 @@ export default function App() {
     {showTerminateModal&&<div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center"><div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"><h2 className="text-lg font-bold">현재 라운드를 나갈까요?</h2><p className="mt-2 text-sm text-gray-500">현재까지 입력한 기록이 삭제되며 복구할 수 없습니다.</p><div className="mt-6 flex gap-2"><button onClick={()=>setShowTerminateModal(false)} className="h-12 flex-1 rounded-xl bg-gray-100 font-semibold">취소</button><button onClick={()=>void confirmForceTerminateRound()} className="h-12 flex-1 rounded-xl bg-red-500 font-bold text-white">기록 삭제하고 종료</button></div></div></div>}
     {screen==='main'&&recoveryDrafts.length>0&&<div className="fixed left-1/2 top-3 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white p-3 shadow-xl"><p className="text-sm font-bold text-emerald-800">저장되지 않은 임시 기록 {recoveryDrafts.length}건</p><div className="mt-2 flex gap-2"><button className="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white" onClick={()=>{const d=recoveryDrafts[0];setActiveRound(d);setHoleIndex(Math.max(0,d.holes.findIndex(h=>h.score<=0)));setScreen('holeEntry');setRecoveryDrafts([])}}>복구하기</button><button className="rounded-lg bg-gray-100 px-3 py-2 text-xs" onClick={()=>setRecoveryDrafts([])}>나중에</button></div></div>}
     {showFrontNine&&<div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl"><div className="text-4xl">🎉</div><h2 className="mt-3 text-xl font-bold">전반 9홀이 끝났습니다!</h2><p className="mt-2 text-sm text-gray-500">수고하셨어요. 잠시 쉬었다가 후반 라운드를 이어가세요.</p><button onClick={continueBackNine} className="mt-6 h-13 w-full rounded-2xl bg-brand px-5 py-4 font-bold text-white">후반 10홀 시작하기</button></div></div>}
+<<<<<<< Updated upstream
     {screen==='main'&&<>{tab==='home'&&<Home displayName={displayName} golfStats={golfStats} parkStats={parkStats} recentGolf={recentGolf} recentPark={recentPark} inProgressRounds={inProgressRounds} onStart={()=>setScreen('sportSelect')} onResume={handleResumeRound} onOpen={r=>openDetail(r,'home')} onDeleteInProgress={handleDeleteInProgressRound} onViewStats={()=>setTab('stats')} onViewRecords={()=>setTab('records')}/>} {tab==='records'&&<Records rounds={rounds} onOpenRound={r=>openDetail(r,'records')} onDelete={async r=>{if(!confirm('이 기록을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await deleteRound(user.uid,r.id);if(detailRound?.id===r.id){setDetailRound(null);setScreen('main')}}catch(e){console.error(e);alert('삭제하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.')}}}/>} {tab==='stats'&&<Stats golfStats={golfStats} parkStats={parkStats} golfRounds={golfRounds} parkRounds={parkRounds}/>} {tab==='settings'&&<Settings email={user.email??''} displayName={displayName} onChangeName={(name)=>{saveProfileName(name);setDisplayName(name)}} onLogout={logout} onDeleteAccount={handleDeleteOwnAccount} onOpenAdmin={()=>setScreen('admin')}/>}<BottomNav active={tab} onChange={setTab}/></>}
     {screen==='admin'&&<AdminUsers onBack={()=>setScreen('main')} getToken={getIdToken}/>}
+=======
+    {screen==='main'&&<>{tab==='home'&&<Home displayName={displayName} golfStats={golfStats} parkStats={parkStats} recentGolf={recentGolf} recentPark={recentPark} inProgressRounds={inProgressRounds} onStart={()=>setScreen('sportSelect')} onResume={handleResumeRound} onOpen={r=>openDetail(r,'home')} onDeleteInProgress={handleDeleteInProgressRound} onViewStats={()=>setTab('stats')} onViewRecords={()=>setTab('records')}/>} {tab==='records'&&<Records rounds={rounds} onOpenRound={r=>openDetail(r,'records')} onDelete={async r=>{if(!confirm('이 기록을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await deleteRound(user.uid,r.id);if(detailRound?.id===r.id){setDetailRound(null);setScreen('main')}}catch(e){console.error(e);alert('삭제하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.')}}}/>} {tab==='stats'&&<Stats golfStats={golfStats} parkStats={parkStats} golfRounds={golfRounds} parkRounds={parkRounds}/>} {tab==='settings'&&<Settings email={user.email??''} emailVerified={user.emailVerified} displayName={displayName} onChangeName={changeName} onResendVerification={resendVerificationEmail} onLogout={logout} onDeleteAccount={handleDeleteOwnAccount} onOpenAdmin={()=>setScreen('admin')} onOpenPrivacy={()=>setScreen('privacy')} onOpenTerms={()=>setScreen('terms')}/>}<BottomNav active={tab} onChange={setTab}/></>}
+    {screen==='admin'&&<AdminUsers onBack={()=>setScreen('main')} getToken={getIdToken}/>}
+    {screen==='privacy'&&<LegalPage kind="privacy" onBack={()=>setScreen('main')}/>}
+    {screen==='terms'&&<LegalPage kind="terms" onBack={()=>setScreen('main')}/>}
+>>>>>>> Stashed changes
   </div>;
 }
 function FullScreenMessage({text}:{text:string}){return <div className="app-shell items-center justify-center"><p className="text-sm text-gray-400">{text}</p></div>}

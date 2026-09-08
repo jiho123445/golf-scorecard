@@ -3,6 +3,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  sendEmailVerification,
   signOut,
   type User,
 } from 'firebase/auth';
@@ -14,6 +16,8 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  resendVerificationEmail: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -35,15 +39,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // 인증 메일 발송이 실패해도 회원가입 자체는 막지 않는다(메일 서버 지연 등으로
+    // 가입이 안 되는 상황을 만들지 않기 위함). 실패 시 설정 화면에서 재전송할 수 있다.
+    try {
+      await sendEmailVerification(cred.user);
+    } catch (err) {
+      console.error('[signup] 인증 메일 발송 실패', err);
+    }
   };
 
   const logout = async () => {
     await signOut(auth);
   };
 
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(auth, email);
+  };
+
+  const resendVerificationEmail = async () => {
+    if (!auth.currentUser) throw new Error('로그인이 필요합니다.');
+    await sendEmailVerification(auth.currentUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resetPassword, resendVerificationEmail }}>
       {children}
     </AuthContext.Provider>
   );

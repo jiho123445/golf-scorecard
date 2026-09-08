@@ -3,13 +3,53 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // 필드가 존재할 때만 타입/범위를 검증한다. 자동저장이 필드 일부만 보내는
+    // 경우가 많아서, "있으면 검증하고 없으면 통과"하는 방식으로 기존 저장
+    // 흐름을 깨지 않게 한다.
+    function isOptionalString(data, field) {
+      return !(field in data) || data[field] is string;
+    }
+    function isOptionalNumber(data, field) {
+      return !(field in data) || data[field] is number;
+    }
+    function isOptionalBool(data, field) {
+      return !(field in data) || data[field] is bool;
+    }
+
+    function isValidUserDoc(data) {
+      return isOptionalString(data, 'displayName')
+        && isOptionalNumber(data, 'updatedAt');
+    }
+
+    function isValidRoundDoc(data) {
+      return isOptionalNumber(data, 'holeCount')
+        && (!('holeCount' in data) || data.holeCount in [9, 18])
+        && isOptionalString(data, 'sportType')
+        && (!('sportType' in data) || data.sportType in ['golf', 'park'])
+        && isOptionalString(data, 'status')
+        && (!('status' in data) || data.status in ['active', 'completed', 'abandoned'])
+        && isOptionalBool(data, 'finished')
+        && isOptionalNumber(data, 'totalScore')
+        && isOptionalNumber(data, 'totalPar')
+        && isOptionalNumber(data, 'totalPutts')
+        && isOptionalNumber(data, 'createdAt')
+        && isOptionalNumber(data, 'updatedAt')
+        && isOptionalString(data, 'courseName')
+        && isOptionalString(data, 'date');
+    }
+
     // 사용자는 자기 자신의 문서(users/{uid})와 그 하위 컬렉션(rounds 등)만
     // 읽고 쓸 수 있다. 로그인하지 않았거나 다른 사용자의 uid로는 접근 불가.
+    // delete는 request.resource.data가 없으므로 create/update와 분리해서 검증한다.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && request.auth.uid == userId
+        && isValidUserDoc(request.resource.data);
 
       match /rounds/{roundId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, delete: if request.auth != null && request.auth.uid == userId;
+        allow create, update: if request.auth != null && request.auth.uid == userId
+          && isValidRoundDoc(request.resource.data);
       }
     }
 

@@ -1,6 +1,10 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+<<<<<<< Updated upstream
 import { initializeFirestore } from 'firebase/firestore';
+=======
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+>>>>>>> Stashed changes
 
 // Firebase 프로젝트 설정값은 .env(.env.local)에 넣고 여기서는 읽기만 합니다.
 // 루트의 .env.example 파일을 복사해서 .env.local로 만든 뒤 값을 채워주세요.
@@ -39,6 +43,14 @@ export const auth = getAuth(app);
 // 일부 네트워크 환경(방화벽/보안 프로그램/확장 프로그램)에서 Firestore의 기본 실시간
 // 연결 방식이 막혀 요청이 응답 없이 멈추는 경우가 있어, 막히면 자동으로 long polling
 // 방식으로 전환되도록 설정합니다.
+<<<<<<< Updated upstream
 export const db = initializeFirestore(app, {
   experimentalAutoDetectLongPolling: true,
+=======
+// 골프장처럼 신호가 약한 곳에서도 화면 조회/스코어 입력이 멈추지 않도록 IndexedDB
+// 오프라인 캐시도 함께 켭니다. 연결이 돌아오면 쌓인 변경사항이 자동으로 동기화됩니다.
+export const db = initializeFirestore(app, {
+  experimentalAutoDetectLongPolling: true,
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+>>>>>>> Stashed changes
 });
