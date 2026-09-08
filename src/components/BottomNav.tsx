@@ -1,40 +1,7 @@
 export type Tab = 'home' | 'records' | 'stats' | 'settings';
-
-interface BottomNavProps {
-  active: Tab;
-  onChange: (tab: Tab) => void;
-}
-
+interface BottomNavProps { active: Tab; onChange: (tab: Tab) => void; }
 const ITEMS: { key: Tab; label: string; icon: string }[] = [
-  { key: 'home', label: '홈', icon: '🏠' },
-  { key: 'records', label: '라운드', icon: '🚩' },
-  { key: 'stats', label: '분석', icon: '📊' },
-  { key: 'settings', label: '설정', icon: '⚙️' },
+  { key: 'home', label: '홈', icon: '🏠' }, { key: 'records', label: '라운드', icon: '⛳' },
+  { key: 'stats', label: '분석', icon: '📊' }, { key: 'settings', label: '설정', icon: '⚙️' },
 ];
-
-export function BottomNav({ active, onChange }: BottomNavProps) {
-  return (
-    <nav className="bottom-glass-nav select-none">
-      {ITEMS.map((item) => {
-        const isActive = active === item.key;
-        return (
-          <button
-            key={item.key}
-            type="button"
-            onClick={() => onChange(item.key)}
-            className={`flex flex-col items-center justify-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${
-              isActive
-                ? 'text-emerald-800 font-black scale-105'
-                : 'text-gray-400 font-medium hover:text-gray-600'
-            }`}
-          >
-            <span className="text-xl leading-none">{item.icon}</span>
-            <span className={`text-[10px] ${isActive ? 'font-black text-emerald-800' : 'font-bold'}`}>
-              {item.label}
-            </span>
-          </button>
-        );
-      })}
-    </nav>
-  );
-}
+export function BottomNav({ active, onChange }: BottomNavProps) { return <nav className="sticky bottom-0 z-10 flex border-t border-gray-100 bg-white/90 px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(24,56,34,0.06)] backdrop-blur-xl">{ITEMS.map((item)=><button key={item.key} type="button" onClick={()=>onChange(item.key)} className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium ${active===item.key?'text-brand':'text-gray-400'}`} style={{minHeight:48}}><span className="text-xl leading-none">{item.icon}</span>{item.label}</button>)}</nav>; }

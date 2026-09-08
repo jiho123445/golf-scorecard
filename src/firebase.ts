@@ -13,6 +13,25 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// 환경변수가 하나라도 비어 있으면(로컬에서 .env.local을 안 만들었거나,
+// Vercel 프로젝트 설정에 6개 값을 등록하지 않은 경우) Firebase SDK가
+// 화면에 아무 안내 없이 조용히 실패하기 쉽다. 어떤 값이 비어 있는지
+// 콘솔에 명확히 남기고, 앱(App.tsx)에서 이 값을 확인해 설정 안내
+// 화면을 보여줄 수 있도록 export 한다.
+const missingFirebaseKeys = Object.entries(firebaseConfig)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+export const isFirebaseConfigured = missingFirebaseKeys.length === 0;
+
+if (!isFirebaseConfigured) {
+  console.error(
+    `[firebase] 다음 환경변수가 설정되지 않았습니다: ${missingFirebaseKeys.join(', ')}\n` +
+      '로컬 개발: .env.example을 .env.local로 복사한 뒤 Firebase 콘솔 값을 채워주세요.\n' +
+      'Vercel 배포: 프로젝트 Settings > Environment Variables에 동일한 6개 값을 등록한 뒤 다시 배포해주세요.',
+  );
+}
+
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);

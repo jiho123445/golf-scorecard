@@ -45,3 +45,9 @@ npm run dev
 이 ZIP은 압축을 풀면 바로 프로젝트 루트가 열리도록 구성되어 있습니다.
 `node_modules` 폴더는 포함하지 않았습니다. VS Code에서 `npm install` 후 `npm run dev`를 실행하세요.
 GitHub/Vercel은 `package.json`을 기준으로 필요한 패키지를 자동 설치합니다.
+
+## v6.0.1 배포 오류 수정
+이전 버전(v6.0)은 의존성 잠금 파일 문제로 GitHub/Vercel 업로드(빌드)가 실패했습니다.
+자세한 원인과 수정 내역은 `CHANGES_v6.0.1_HOTFIX.md`를 확인하세요. Vercel에 올리기 전에는
+`.env.example`의 6개 `VITE_FIREBASE_*` 값을 Vercel 프로젝트의 Environment Variables에
+반드시 등록해야 합니다.

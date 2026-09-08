@@ -65,6 +65,7 @@ export async function createRound(
   const roundRef = doc(db, 'users', uid, 'rounds', roundId);
   await setDoc(roundRef, {
     sportType: data.sportType ?? 'golf',
+    status: 'active',
     parkPlayers: data.parkPlayers ?? [],
     date: data.date,
     courseName: data.courseName,
@@ -82,13 +83,12 @@ export async function createRound(
     finished: false,
     createdAt: Date.now(),
     updatedAt: Date.now(),
-    currentHoleIndex: 0,
   });
   return roundId;
 }
 
 /** 홀 목록 갱신 + 합계 자동 재계산 (자동 저장에 사용) */
-export async function saveHoles(uid: string, roundId: string, holes: Hole[], parkPlayers?: ParkPlayer[], currentHoleIndex?: number) {
+export async function saveHoles(uid: string, roundId: string, holes: Hole[], parkPlayers?: ParkPlayer[]) {
   const totals = calcTotals(holes);
   await setDoc(doc(db, 'users', uid, 'rounds', roundId), {
     holes,
@@ -97,13 +97,12 @@ export async function saveHoles(uid: string, roundId: string, holes: Hole[], par
     totalPar: totals.totalPar,
     totalPutts: totals.totalPutts,
     updatedAt: Date.now(),
-    ...(typeof currentHoleIndex === 'number' ? { currentHoleIndex } : {}),
   }, { merge: true });
 }
 
 /** 라운드 종료 처리 */
 export async function finishRound(uid: string, roundId: string) {
-  await setDoc(doc(db, 'users', uid, 'rounds', roundId), { finished: true, updatedAt: Date.now() }, { merge: true });
+  await setDoc(doc(db, 'users', uid, 'rounds', roundId), { finished: true, status: 'completed', updatedAt: Date.now() }, { merge: true });
 }
 
 /** 진행 중인 라운드를 완전히 삭제한다. (강제 종료) */

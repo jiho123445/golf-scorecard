@@ -22,7 +22,7 @@ export function RoundSummary({ round, onViewScorecard, onDone }: RoundSummaryPro
         <Metric label="보기" value={`${labels['보기'] ?? 0}`} />
       </div>
     </div>
-    <div className="flex flex-col gap-2"><button type="button" onClick={onViewScorecard} className="h-12 w-full rounded-xl bg-gray-100 text-base font-semibold text-gray-700 active:bg-gray-200">전체 스코어카드 보기</button><button type="button" onClick={onDone} className="h-14 w-full rounded-xl bg-brand text-lg font-bold text-white active:bg-brand-dark">홈으로 이동</button></div>
+    <div className="flex flex-col gap-2"><button type="button" onClick={onViewScorecard} className="h-12 w-full rounded-xl bg-gray-100 text-base font-semibold text-gray-700 active:bg-gray-200">전체 스코어카드 보기</button><button type="button" onClick={onDone} className="h-14 w-full rounded-xl bg-brand text-lg font-bold text-white active:bg-brand-dark">확인</button></div>
   </div>;
 }
 function Metric({label,value}:{label:string;value:string}){return <div className="rounded-xl bg-gray-50 px-4 py-3"><span className="block text-xs text-gray-500">{label}</span><span className="mt-1 block font-bold text-gray-900">{value}</span></div>}

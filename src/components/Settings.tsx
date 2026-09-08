@@ -1,11 +1,12 @@
 import { useState } from 'react';
-
-export function Settings({email,displayName,onChangeDisplayName,onLogout}:{email:string;displayName:string;onChangeDisplayName:(name:string)=>Promise<void>;onLogout:()=>void}){
-  const [name,setName]=useState(displayName); const [saving,setSaving]=useState(false); const [message,setMessage]=useState('');
-  const save=async()=>{if(!name.trim())return;setSaving(true);setMessage('');try{await onChangeDisplayName(name.trim());setMessage('이름이 저장되었습니다.');}catch{setMessage('이름을 저장하지 못했습니다.');}finally{setSaving(false)}};
-  return <div className="flex flex-1 flex-col gap-5 px-5 py-6"><div><p className="text-sm text-gray-500">계정 및 앱 관리</p><h1 className="text-xl font-bold">설정</h1></div>
-    <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4"><p className="text-xs font-semibold text-emerald-700">스코어카드 표시 이름</p><p className="mt-1 text-xs text-emerald-900/70">홈 화면과 파크골프 대표 플레이어에 실제 이름이 표시됩니다.</p><div className="mt-3 flex gap-2"><input value={name} onChange={e=>setName(e.target.value)} className="h-11 min-w-0 flex-1 rounded-xl border border-emerald-100 bg-white px-3 text-sm" placeholder="예: 김지호"/><button onClick={()=>void save()} disabled={saving} className="rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white disabled:opacity-50">{saving?'저장 중':'저장'}</button></div>{message&&<p className="mt-2 text-xs text-emerald-700">{message}</p>}</div>
-    <div className="rounded-2xl bg-gray-50 p-4"><p className="text-xs text-gray-400">로그인 계정</p><p className="mt-1 font-semibold">{email}</p></div>
-    <div className="rounded-2xl border border-gray-100 p-4 text-sm text-gray-600"><p className="font-semibold text-gray-900">데이터 안전 기능</p><ul className="mt-2 list-disc space-y-1 pl-5"><li>홀 입력 즉시 기기 임시 저장</li><li>자동 서버 저장 및 재접속 복구</li><li>현재 보고 있던 홀 위치 기억</li><li>라운드 완료 후 홈 이동 전 재저장</li></ul></div>
-    <button type="button" onClick={onLogout} className="mt-auto h-12 rounded-xl border border-red-100 text-sm font-semibold text-red-500">로그아웃</button></div>
+export function Settings({email,displayName,onChangeName,onLogout}:{email:string;displayName:string;onChangeName:(name:string)=>void;onLogout:()=>void}){
+  const [name,setName]=useState(displayName);
+  const save=()=>{const next=name.trim();if(next)onChangeName(next)};
+  return <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-6 pb-24">
+    <div className="premium-section-title"><p>나만의 Happy Golf</p><h1>설정</h1></div>
+    <section className="glass-card p-5"><p className="text-xs font-bold text-slate-400">표시 이름</p><div className="mt-3 flex gap-2"><input value={name} onChange={e=>setName(e.target.value)} maxLength={20} className="premium-input flex-1" placeholder="이름 입력"/><button onClick={save} className="rounded-2xl bg-brand px-4 text-sm font-bold text-white">저장</button></div><p className="mt-2 text-xs text-slate-500">홈 화면과 스코어 입력 화면에 즉시 반영됩니다.</p></section>
+    <section className="glass-card p-5"><p className="text-xs font-bold text-slate-400">로그인 계정</p><p className="mt-2 font-semibold">{email}</p></section>
+    <section className="glass-card p-5 text-sm text-slate-600"><p className="font-bold text-slate-900">앱 사용 안내</p><ul className="mt-3 list-disc space-y-2 pl-5"><li>임시 저장 후 홈으로 이동해도 이어하기가 가능합니다.</li><li>완료된 라운드는 기록과 통계에 자동 반영됩니다.</li><li>나가기를 선택하면 확인 후 현재 라운드를 삭제합니다.</li></ul></section>
+    <button type="button" onClick={onLogout} className="mt-auto h-14 rounded-2xl border border-red-200 bg-white/80 text-sm font-bold text-red-600">로그아웃</button>
+  </div>
 }
