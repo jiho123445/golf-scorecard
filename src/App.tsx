@@ -62,6 +62,20 @@ export default function App() {
   const handleExitRound=async()=>{if(activeRound)await persistActiveRound(activeRound.holes);setActiveRound(null);setScreen('main')};
   const confirmForceTerminateRound=async()=>{if(!activeRound)return;setShowTerminateModal(false);const id=activeRound.id;terminatedRoundIds.current.add(id);removeDraft(id);setActiveRound(null);setHoleIndex(0);setSaveStatus('idle');setScreen('main');setTab('home');void deleteRound(user.uid,id).catch(console.error)};
   const openDetail=(round:Round,from:Tab)=>{setTab(from);setDetailRound(round);setScorecardOrigin('detail');setScreen('scorecard')}; const done=()=>{setActiveRound(null);setScreen('main');setTab('home')};
+  // 홈 화면의 "진행 중인 라운드" 목록에서, 다시 들어가지 않고도 바로 완전히 삭제할 수 있게 한다.
+  const handleDeleteInProgressRound=async(r:Round)=>{
+    if(!confirm(`"${r.courseName}" 진행 중인 라운드를 완전히 삭제할까요? 삭제 후 복구할 수 없습니다.`))return;
+    removeDraft(r.id);
+    setRecoveryDrafts(prev=>prev.filter(d=>d.id!==r.id));
+    try{
+      await deleteRound(user.uid,r.id);
+    }catch(err){
+      console.error(err);
+      alert('삭제하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.');
+      return;
+    }
+    if(activeRound?.id===r.id){setActiveRound(null);setHoleIndex(0);setSaveStatus('idle');setScreen('main')}
+  };
   const isPark=activeRound&&sportOf(activeRound)==='park';
   return <div className="app-shell">
     {screen==='sportSelect'&&<SportSelect onBack={()=>setScreen('main')} onSelect={s=>setScreen(s==='golf'?'newRound':'newParkRound')}/>}
@@ -75,7 +89,7 @@ export default function App() {
     {showTerminateModal&&<div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center"><div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"><h2 className="text-lg font-bold">현재 라운드를 나갈까요?</h2><p className="mt-2 text-sm text-gray-500">현재까지 입력한 기록이 삭제되며 복구할 수 없습니다.</p><div className="mt-6 flex gap-2"><button onClick={()=>setShowTerminateModal(false)} className="h-12 flex-1 rounded-xl bg-gray-100 font-semibold">취소</button><button onClick={()=>void confirmForceTerminateRound()} className="h-12 flex-1 rounded-xl bg-red-500 font-bold text-white">기록 삭제하고 종료</button></div></div></div>}
     {screen==='main'&&recoveryDrafts.length>0&&<div className="fixed left-1/2 top-3 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white p-3 shadow-xl"><p className="text-sm font-bold text-emerald-800">저장되지 않은 임시 기록 {recoveryDrafts.length}건</p><div className="mt-2 flex gap-2"><button className="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white" onClick={()=>{const d=recoveryDrafts[0];setActiveRound(d);setHoleIndex(Math.max(0,d.holes.findIndex(h=>h.score<=0)));setScreen('holeEntry');setRecoveryDrafts([])}}>복구하기</button><button className="rounded-lg bg-gray-100 px-3 py-2 text-xs" onClick={()=>setRecoveryDrafts([])}>나중에</button></div></div>}
     {showFrontNine&&<div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 p-5"><div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl"><div className="text-4xl">🎉</div><h2 className="mt-3 text-xl font-bold">전반 9홀이 끝났습니다!</h2><p className="mt-2 text-sm text-gray-500">수고하셨어요. 잠시 쉬었다가 후반 라운드를 이어가세요.</p><button onClick={continueBackNine} className="mt-6 h-13 w-full rounded-2xl bg-brand px-5 py-4 font-bold text-white">후반 10홀 시작하기</button></div></div>}
-    {screen==='main'&&<>{tab==='home'&&<Home displayName={displayName} golfStats={golfStats} parkStats={parkStats} recentGolf={recentGolf} recentPark={recentPark} inProgressRounds={inProgressRounds} onStart={()=>setScreen('sportSelect')} onResume={handleResumeRound} onOpen={r=>openDetail(r,'home')}/>} {tab==='records'&&<Records rounds={rounds} onOpenRound={r=>openDetail(r,'records')} onDelete={async r=>{if(!confirm('이 기록을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await deleteRound(user.uid,r.id);if(detailRound?.id===r.id){setDetailRound(null);setScreen('main')}}catch(e){console.error(e);alert('삭제하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.')}}}/>} {tab==='stats'&&<Stats golfStats={golfStats} parkStats={parkStats} golfRounds={golfRounds} parkRounds={parkRounds}/>} {tab==='settings'&&<Settings email={user.email??''} displayName={displayName} onChangeName={(name)=>{saveProfileName(name);setDisplayName(name)}} onLogout={logout}/>}<BottomNav active={tab} onChange={setTab}/></>}
+    {screen==='main'&&<>{tab==='home'&&<Home displayName={displayName} golfStats={golfStats} parkStats={parkStats} recentGolf={recentGolf} recentPark={recentPark} inProgressRounds={inProgressRounds} onStart={()=>setScreen('sportSelect')} onResume={handleResumeRound} onOpen={r=>openDetail(r,'home')} onDeleteInProgress={handleDeleteInProgressRound}/>} {tab==='records'&&<Records rounds={rounds} onOpenRound={r=>openDetail(r,'records')} onDelete={async r=>{if(!confirm('이 기록을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await deleteRound(user.uid,r.id);if(detailRound?.id===r.id){setDetailRound(null);setScreen('main')}}catch(e){console.error(e);alert('삭제하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.')}}}/>} {tab==='stats'&&<Stats golfStats={golfStats} parkStats={parkStats} golfRounds={golfRounds} parkRounds={parkRounds}/>} {tab==='settings'&&<Settings email={user.email??''} displayName={displayName} onChangeName={(name)=>{saveProfileName(name);setDisplayName(name)}} onLogout={logout}/>}<BottomNav active={tab} onChange={setTab}/></>}
   </div>;
 }
 function FullScreenMessage({text}:{text:string}){return <div className="app-shell items-center justify-center"><p className="text-sm text-gray-400">{text}</p></div>}
