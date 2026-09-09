@@ -87,12 +87,17 @@ export async function createRound(
   return roundId;
 }
 
-/** 홀 목록 갱신 + 합계 자동 재계산 (자동 저장에 사용) */
-export async function saveHoles(uid: string, roundId: string, holes: Hole[], parkPlayers?: ParkPlayer[]) {
+/**
+ * 홀 목록 갱신 + 합계 자동 재계산 (자동 저장에 사용).
+ * holeCount를 함께 넘기면(라운드 중 9↔18홀 변경 시) 그 값도 같이 저장한다 —
+ * 넘기지 않으면 기존 문서의 holeCount는 그대로 유지된다.
+ */
+export async function saveHoles(uid: string, roundId: string, holes: Hole[], parkPlayers?: ParkPlayer[], holeCount?: HoleCount) {
   const totals = calcTotals(holes);
   await setDoc(doc(db, 'users', uid, 'rounds', roundId), {
     holes,
     ...(parkPlayers ? { parkPlayers } : {}),
+    ...(holeCount ? { holeCount } : {}),
     totalScore: totals.totalScore,
     totalPar: totals.totalPar,
     totalPutts: totals.totalPutts,
