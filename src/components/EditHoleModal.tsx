@@ -14,15 +14,22 @@ interface Props {
  * 작은 팝업. 골프(par가 있는 홀)는 파 기준 스테퍼로, 파크골프(par 개념이 없는 홀,
  * par===0)는 실 타수 입력으로 보여준다.
  */
+const PAR_SEQUENCE = [3, 4, 5];
+
 export function EditHoleModal({ hole, onSave, onClose }: Props) {
   const [draft, setDraft] = useState<Hole>(hole);
   const [saving, setSaving] = useState(false);
   const isPark = !hole.par;
 
+  const cyclePar = () => {
+    const idx = PAR_SEQUENCE.indexOf(draft.par);
+    setDraft((d) => ({ ...d, par: PAR_SEQUENCE[(idx + 1) % PAR_SEQUENCE.length] }));
+  };
+
   const save = async () => {
     setSaving(true);
     try {
-      await onSave({ score: draft.score, putts: draft.putts });
+      await onSave({ score: draft.score, putts: draft.putts, par: draft.par });
       onClose();
     } finally {
       setSaving(false);
@@ -32,8 +39,18 @@ export function EditHoleModal({ hole, onSave, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/45 p-4 sm:items-center">
       <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
-        <h2 className="text-lg font-bold text-gray-900">
-          {hole.number}번 홀 기록 수정{!isPark && <span className="ml-1 text-sm font-normal text-gray-400">(PAR {hole.par})</span>}
+        <h2 className="flex items-center justify-center gap-2 text-lg font-bold text-gray-900">
+          {hole.number}번 홀 기록 수정
+          {!isPark && (
+            <button
+              type="button"
+              onClick={cyclePar}
+              className="rounded-full bg-gray-100 px-2 py-0.5 text-sm font-normal text-gray-500"
+              title="이 홀의 실제 파가 다르면 눌러서 고칠 수 있어요"
+            >
+              PAR {draft.par} ✎
+            </button>
+          )}
         </h2>
 
         <div className="mt-5 flex justify-center">
