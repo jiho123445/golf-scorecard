@@ -1,0 +1,223 @@
+export type HolePar = 3 | 4 | 5;
+
+export type GolfCourse = {
+  id: string;
+  name: string;
+  region: string;
+  address?: string;
+  totalHoles: number;
+  courses?: string[];
+  aliases?: string[];
+  /** 코스별 실제 홀 Par 배열. 공식 정보가 확인된 코스부터 확장 */
+  coursePars?: Record<string, HolePar[]>;
+};
+
+const P = (values: number[]) => values as HolePar[];
+
+/**
+ * 내장 골프장 데이터.
+ * aliases를 별도로 두어 CC/GC/컨트리클럽, 띄어쓰기, 영문 표기 차이로 검색이 누락되지 않도록 한다.
+ * coursePars가 있는 경우 실제 코스의 홀별 Par를 새 라운드에 자동 반영한다.
+ */
+export const golfCourses: GolfCourse[] = [
+  // 강원특별자치도 · 홍천 (우선 보강)
+  {
+    id: 'sagewood-hongcheon', name: '세이지우드 홍천', region: '강원특별자치도 홍천군', address: '강원특별자치도 홍천군 두촌면 광석로 898-160', totalHoles: 27,
+    courses: ['드림', '비전', '챌린지'], aliases: ['세이지우드', '세이지우드cc', '세이지우드 cc', 'sagewood', 'sagewood hongcheon'],
+    coursePars: {
+      '드림': P([4,5,4,3,5,4,4,3,4]),
+      '비전': P([4,3,4,5,4,4,5,3,4]),
+      '챌린지': P([5,3,4,3,4,4,5,3,5]),
+    },
+  },
+  {
+    id: 'hilldeloci', name: '힐드로사이 컨트리클럽', region: '강원특별자치도 홍천군', address: '강원특별자치도 홍천군 남면 한서로 2840', totalHoles: 18,
+    courses: ['Birch', 'Pine'], aliases: ['힐드로사이드', '힐드로사이', '힐드로사이cc', '힐드로사이드cc', 'hilldeloci', 'hill de loci'],
+    coursePars: {
+      'Birch': P([4,5,4,4,3,4,3,4,5]),
+      'Pine': P([4,5,4,3,5,3,4,4,4]),
+    },
+  },
+  {
+    id: 'beaconhills', name: '비콘힐스 골프클럽', region: '강원특별자치도 홍천군', address: '강원특별자치도 홍천군 홍천읍 높은터로 533', totalHoles: 18,
+    courses: ['누리', '하늘'], aliases: ['비콘힐스', '비콘힐스cc', '비콘힐스gc', '비콘힐스 골프장', 'beaconhills', 'beacon hills', '홍천컨트리클럽'],
+    // 비콘힐스 공식 코스제원 기준: 누리 9홀 Par 36 + 하늘 9홀 Par 36 = 총 Par 72
+    coursePars: {
+      '누리': P([5,4,4,3,4,4,4,3,5]),
+      '하늘': P([4,3,5,4,4,3,4,5,4]),
+    },
+  },
+  // 옛 '대명비발디파크 컨트리클럽'이 '소노펠리체 컨트리클럽'으로 개명되어 동일 시설이므로 통합.
+  // ⚠️ 확인 필요: 최신 조사에서는 이 리조트가 EAST(18)+WEST(18)+마운틴(9)=45홀 구조로 운영 중이라는 결과가 나왔는데,
+  //    기존에 등록된 '마운틴·레이크·실크 27홀' 구성과 다릅니다. '마운틴' 코스명/Par는 두 구조 모두에서 확인되어 반영했지만,
+  //    전체 홀 수·코스 구성은 실제 운영 현황을 재확인 후 수정하는 게 안전합니다.
+  {
+    id: 'sonofelice-vivaldi', name: '소노펠리체 컨트리클럽', region: '강원특별자치도 홍천군', totalHoles: 27,
+    courses: ['마운틴', '레이크', '실크'],
+    aliases: ['소노펠리체', 'sonofelice', '비발디', '비발디파크', '비발디파크cc', '대명비발디파크', 'vivaldi'],
+    coursePars: { '마운틴': P([4,4,3,5,5,4,3,5,3]) },
+  },
+  // 2025년 워터·스톤·트리 3코스 27홀로 확장 완료(기존 18홀에서 상향). 코스명만 확인됨 — 홀별 Par를 확인할 수 있는 소스를 찾지 못해 기본값 유지
+  { id: 'cascadia', name: '카스카디아 골프클럽', region: '강원특별자치도 홍천군', totalHoles: 27, courses: ['워터', '스톤', '트리'], aliases: ['카스카디아', 'cascadia'] },
+  {
+    id: 'laviebel-olddune', name: '라비에벨 올드코스', region: '강원특별자치도 춘천시', totalHoles: 18,
+    courses: ['OUT', 'IN'], aliases: ['라비에벨 올드'],
+    coursePars: { 'OUT': P([5,4,4,3,5,4,3,4,4]), 'IN': P([4,5,3,4,4,5,4,3,4]) },
+  },
+  {
+    id: 'laviebel-dune', name: '라비에벨 듄스코스', region: '강원특별자치도 춘천시', totalHoles: 18,
+    courses: ['OUT', 'IN'], aliases: ['라비에벨 듄스'],
+    coursePars: { 'OUT': P([4,5,4,3,4,5,4,3,4]), 'IN': P([4,4,4,5,4,3,5,3,4]) },
+  },
+  {
+    // West/East 순서는 공식 홈페이지가 홀 상세를 비공개(회원 로그인)로 두어 순서를 확정할 수 없음 — 3개 독립 소스(리뷰·스코어카드 사이트)가 서로 일치하는 값
+    id: 'jadepalace', name: '제이드팰리스 골프클럽', region: '강원특별자치도 춘천시', totalHoles: 18,
+    courses: ['West', 'East'],
+    coursePars: { 'West': P([4,4,5,3,4,3,4,4,5]), 'East': P([5,4,4,5,3,4,3,4,4]) },
+  },
+  {
+    // 코쿤·템플·클라우드 3코스 27홀(파108), 공식 홈페이지 코스별 스코어카드 기준
+    id: 'whistling-rock', name: '휘슬링락 컨트리클럽', region: '강원특별자치도 춘천시', totalHoles: 27,
+    courses: ['코쿤', '템플', '클라우드'],
+    coursePars: {
+      '코쿤': P([4,5,4,4,3,4,5,3,4]),
+      '템플': P([4,5,4,4,4,3,5,4,3]),
+      '클라우드': P([4,5,4,3,4,4,5,3,4]),
+    },
+  },
+  {
+    // 실제 4개 코스는 오크·메이플·파인·체리(Cherry)이며 '힐'이라는 코스는 존재하지 않아 명칭 정정. 파인·체리만 홀별 Par 확인됨(오크·메이플은 신뢰할 수 있는 소스를 찾지 못해 기본값 유지)
+    id: 'oakvalley', name: '오크밸리 컨트리클럽', region: '강원특별자치도 원주시', totalHoles: 36,
+    courses: ['오크', '메이플', '파인', '체리'], aliases: ['오크밸리', 'oak valley'],
+    coursePars: { '파인': P([4,4,3,4,5,4,3,4,5]), '체리': P([4,3,4,4,4,3,5,4,5]) },
+  },
+  {
+    // 목록상 '충청북도 충주시'로 잘못 분류되어 있었으나 실제 소재지는 강원특별자치도 원주시 문막읍. 파인·레이크·밸리·필드·마운틴 5코스 45홀, 공식 홈페이지 코스별 코스안내 기준
+    id: 'century21', name: '센추리21 컨트리클럽', region: '강원특별자치도 원주시', totalHoles: 45,
+    courses: ['파인', '레이크', '밸리', '필드', '마운틴'],
+    coursePars: {
+      '파인': P([4,3,5,4,4,3,5,4,4]),
+      '레이크': P([4,5,3,4,4,3,5,4,4]),
+      '밸리': P([4,4,3,5,3,4,4,4,5]),
+      '필드': P([4,4,5,3,4,3,4,5,4]),
+      '마운틴': P([3,4,5,4,3,4,5,4,4]),
+    },
+  },
+  // 실제 구성은 남코스·북코스(각 18홀)이며 9홀 단위 하위 코스가 없어, 코스명/Par 자동입력은 지원하지 않음(홀 수 36은 정확함)
+  { id: 'sungwoo', name: '웰리힐리 컨트리클럽', region: '강원특별자치도 횡성군', totalHoles: 36, aliases: ['웰리힐리', 'welihill'] },
+  {
+    id: 'high1', name: '하이원 컨트리클럽', region: '강원특별자치도 정선군', totalHoles: 18,
+    courses: ['마운틴', '밸리'],
+    coursePars: { '마운틴': P([4,4,4,5,5,3,4,3,4]), '밸리': P([4,5,4,4,3,5,3,4,5]) },
+  },
+  {
+    id: 'yongpyong', name: '용평 골프클럽', region: '강원특별자치도 평창군', totalHoles: 18,
+    courses: ['산마루', '강나루'],
+    coursePars: { '산마루': P([4,3,5,4,4,4,3,5,4]), '강나루': P([5,3,4,3,4,4,4,4,5]) },
+  },
+  { id: 'phoenix', name: '휘닉스 평창 골프클럽', region: '강원특별자치도 평창군', totalHoles: 18 },
+  // 코스명(선라이즈·마운틴)만 확인됨 — 공식 홈페이지가 홀 상세를 접근 제한해 Par는 기본값 유지
+  { id: 'plaza-seorak', name: '플라자CC 설악', region: '강원특별자치도 속초시', totalHoles: 18, courses: ['선라이즈', '마운틴'] },
+  {
+    // 설악·썬·밸리 3코스, 공식 홈페이지 코스안내 기준
+    id: 'sorak-sunvalley', name: '설악썬밸리 골프리조트', region: '강원특별자치도 고성군', totalHoles: 27,
+    courses: ['설악', '썬', '밸리'],
+    coursePars: {
+      '설악': P([4,5,4,3,5,4,3,4,4]),
+      '썬': P([4,4,3,4,4,5,4,3,5]),
+      '밸리': P([4,4,4,3,5,3,4,5,4]),
+    },
+  },
+
+  // 경기
+  { id: 'lakeside', name: '레이크사이드 컨트리클럽', region: '경기도 용인시', totalHoles: 54 },
+  { id: '88cc', name: '88 컨트리클럽', region: '경기도 용인시', totalHoles: 36 },
+  { id: 'hanwha-plaza-yongin', name: '플라자CC 용인', region: '경기도 용인시', totalHoles: 36 },
+  { id: 'gold-cc', name: '골드 컨트리클럽', region: '경기도 용인시', totalHoles: 36 },
+  { id: 'blueone-yongin', name: '블루원 용인 컨트리클럽', region: '경기도 용인시', totalHoles: 27 },
+  { id: 'south-springs', name: '사우스스프링스 컨트리클럽', region: '경기도 이천시', totalHoles: 18 },
+  // 북·동·서 3코스 27홀로 확장(기존 18홀에서 상향)
+  { id: 'blackstone-icheon', name: '블랙스톤 이천 골프클럽', region: '경기도 이천시', totalHoles: 27 },
+  { id: 'h1-club', name: 'H1 CLUB', region: '경기도 이천시', totalHoles: 18 },
+  { id: 'skyvalley', name: '스카이밸리 컨트리클럽', region: '경기도 여주시', totalHoles: 36 },
+  { id: 'ferrum', name: '페럼클럽', region: '경기도 여주시', totalHoles: 18 },
+  { id: 'solmoro', name: '솔모로 컨트리클럽', region: '경기도 여주시', totalHoles: 36 },
+  { id: 'haesley', name: '해슬리 나인브릿지', region: '경기도 여주시', totalHoles: 18 },
+  // 실제 소재지는 경기도 용인시 처인구 백암면(퍼블릭 18홀) — 기존 '여주시 27홀'은 오기로 확인됨
+  { id: 'sunning-point', name: '써닝포인트 컨트리클럽', region: '경기도 용인시', totalHoles: 18 },
+  { id: 'golf-club-q', name: '골프클럽Q', region: '경기도 안성시', totalHoles: 18 },
+  { id: 'ansung-benest', name: '안성베네스트 골프클럽', region: '경기도 안성시', totalHoles: 36 },
+  { id: 'anseong-cc', name: '안성 컨트리클럽', region: '경기도 안성시', totalHoles: 18 },
+  { id: 'new-korea', name: '뉴코리아 컨트리클럽', region: '경기도 고양시', totalHoles: 18 },
+  { id: 'new-seoul', name: '뉴서울 컨트리클럽', region: '경기도 광주시', totalHoles: 36 },
+  { id: 'namseoul', name: '남서울 컨트리클럽', region: '경기도 성남시', totalHoles: 18 },
+  { id: 'eastvalley', name: '이스트밸리 컨트리클럽', region: '경기도 광주시', totalHoles: 27 },
+  { id: 'wellington', name: '웰링턴 컨트리클럽', region: '경기도 이천시', totalHoles: 27 },
+  // 회원제 27홀 + 대중제 9홀 = 총 36홀
+  { id: 'adonis', name: '포천아도니스 컨트리클럽', region: '경기도 포천시', totalHoles: 36 },
+
+  // 충청
+  { id: 'woojunghills', name: '우정힐스 컨트리클럽', region: '충청남도 천안시', totalHoles: 18 },
+  { id: 'imperial-lake', name: '임페리얼레이크 컨트리클럽', region: '충청북도 충주시', totalHoles: 18 },
+  { id: 'kingsdale', name: '킹스데일 골프클럽', region: '충청북도 충주시', totalHoles: 18 },
+  { id: 'lotte-buyeo', name: '롯데스카이힐 부여', region: '충청남도 부여군', totalHoles: 18 },
+  { id: 'goldenbay', name: '골든베이 골프앤리조트', region: '충청남도 태안군', totalHoles: 27 },
+
+  // 영남
+  { id: 'blueone-sangju', name: '블루원 상주 골프리조트', region: '경상북도 상주시', totalHoles: 18 },
+  { id: 'gyeongju-silla', name: '경주신라 컨트리클럽', region: '경상북도 경주시', totalHoles: 36 },
+  // 2022년 블루코스(9홀) 추가로 27홀로 확장
+  { id: 'mauna-ocean', name: '마우나오션 리조트 골프클럽', region: '경상북도 경주시', totalHoles: 27 },
+  { id: 'gimcheon-podo', name: '김천포도 컨트리클럽', region: '경상북도 김천시', totalHoles: 18 }, // 구 '베네치아CC'가 재개장하며 개명
+  { id: 'pal-gong', name: '팔공 컨트리클럽', region: '대구광역시 동구', totalHoles: 18 },
+  { id: 'bay-side', name: '베이사이드 골프클럽', region: '부산광역시 기장군', totalHoles: 27 },
+  { id: 'busan-cc', name: '부산 컨트리클럽', region: '부산광역시 금정구', totalHoles: 18 },
+  { id: 'dongbusan', name: '동부산 컨트리클럽', region: '부산광역시 기장군', totalHoles: 27 },
+  // 골든·로얄·실크 3코스 27홀 챔피언십 코스
+  { id: 'haeundae', name: '해운대 컨트리클럽', region: '부산광역시 기장군', totalHoles: 27 },
+
+  // 호남
+  // 동악·섬진·설산 3코스 27홀(실제 소재지는 전남 곡성군이나 명칭은 '광주'로 유지)
+  { id: 'gwangju-cc', name: '광주 컨트리클럽', region: '광주광역시', totalHoles: 27 },
+  // 어등·송정·하남 3코스 27홀
+  { id: 'eodeungsan', name: '어등산 컨트리클럽', region: '광주광역시', totalHoles: 27 },
+  // 석양(골드)·호수(레이크)·언덕(힐)·계곡(밸리) 4코스 36홀(회원제는 18홀만 운영)
+  { id: 'gold-lake', name: '골드레이크 컨트리클럽', region: '전라남도 나주시', totalHoles: 36 },
+  // 스프링·썸머·어텀 3코스 27홀
+  { id: 'hwasun', name: '화순 컨트리클럽', region: '전라남도 화순군', totalHoles: 27 },
+  { id: 'dasan-beach', name: '다산베아채 골프앤리조트', region: '전라남도 강진군', totalHoles: 27 },
+  { id: 'seokjeong', name: '석정힐 컨트리클럽', region: '전북특별자치도 고창군', totalHoles: 18 },
+  { id: 'golfzon-muju', name: '무주덕유산 컨트리클럽', region: '전북특별자치도 무주군', totalHoles: 18 },
+
+  // 제주
+  { id: 'nine-bridges', name: '나인브릿지 제주', region: '제주특별자치도 서귀포시', totalHoles: 18 },
+  // 회원제 18홀 + 대중제(퍼블릭) 9홀 = 총 27홀
+  { id: 'pinx', name: '핀크스 골프클럽', region: '제주특별자치도 서귀포시', totalHoles: 27 },
+  { id: 'haevichi-jeju', name: '해비치 컨트리클럽 제주', region: '제주특별자치도 서귀포시', totalHoles: 36 },
+  { id: 'lotte-jeju', name: '롯데스카이힐 제주 컨트리클럽', region: '제주특별자치도 서귀포시', totalHoles: 36 },
+  // 회원제 18홀 + 대중제 18홀 = 총 36홀
+  { id: 'eli-jeju', name: '엘리시안 제주 컨트리클럽', region: '제주특별자치도 제주시', totalHoles: 36 },
+  // West·North·East·South 4코스 36홀
+  { id: 'cypress', name: '사이프러스 골프앤리조트', region: '제주특별자치도 서귀포시', totalHoles: 36 },
+  { id: 'tedivalley', name: '테디밸리 골프앤리조트', region: '제주특별자치도 서귀포시', totalHoles: 18 },
+  { id: 'jungmun', name: '중문 골프클럽', region: '제주특별자치도 서귀포시', totalHoles: 18 },
+];
+
+export const golfRegions = Array.from(new Set(golfCourses.map((course) => course.region.split(' ')[0])));
+
+export function normalizeGolfSearch(value: string) {
+  return value.toLowerCase().replace(/[\s\-_.()·]/g, '').replace(/컨트리클럽|골프클럽|골프장|cc|gc/g, '');
+}
+
+export function searchGolfCourses(query: string, region = '전체') {
+  const keyword = normalizeGolfSearch(query);
+  return golfCourses.filter((course) => {
+    const regionMatches = region === '전체' || course.region.startsWith(region);
+    if (!regionMatches) return false;
+    if (!keyword) return true;
+    const searchable = [course.name, course.region, course.address ?? '', ...(course.aliases ?? [])]
+      .map(normalizeGolfSearch)
+      .join(' ');
+    return searchable.includes(keyword);
+  });
+}
