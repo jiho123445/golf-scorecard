@@ -27,13 +27,21 @@ function normalizeCourseKey(value: string) {
   return value.toLowerCase().replace(/[\s\-_.()·]/g, '').replace(/코스|course/g, '');
 }
 
-function findCoursePars(course: GolfCourse, courseName: string) {
-  if (!course.coursePars || !courseName) return undefined;
-  if (course.coursePars[courseName]) return course.coursePars[courseName];
+function findCourseValues<T>(map: Record<string, T[]> | undefined, courseName: string): T[] | undefined {
+  if (!map || !courseName) return undefined;
+  if (map[courseName]) return map[courseName];
 
   const target = normalizeCourseKey(courseName);
-  const matchedKey = Object.keys(course.coursePars).find((key) => normalizeCourseKey(key) === target);
-  return matchedKey ? course.coursePars[matchedKey] : undefined;
+  const matchedKey = Object.keys(map).find((key) => normalizeCourseKey(key) === target);
+  return matchedKey ? map[matchedKey] : undefined;
+}
+
+function findCoursePars(course: GolfCourse, courseName: string) {
+  return findCourseValues(course.coursePars, courseName);
+}
+
+function findCourseYardages(course: GolfCourse, courseName: string) {
+  return findCourseValues(course.courseYardages, courseName);
 }
 
 function applyCoursePars(course: GolfCourse | null, first: string, second: string, count: HoleCount): Hole[] {
@@ -45,9 +53,15 @@ function applyCoursePars(course: GolfCourse | null, first: string, second: strin
 
   if (!pars || pars.length < count) return createDefaultHoles(count);
 
+  // 코스별 실제 홀 거리(m)가 등록되어 있으면 홀 생성 시 자동으로 채워준다. 없으면 거리는 미입력('-')으로 남는다.
+  const firstYardages = findCourseYardages(course, first);
+  const secondYardages = count === 18 ? findCourseYardages(course, second) : undefined;
+  const yardages = count === 18 && firstYardages && secondYardages ? [...firstYardages, ...secondYardages] : firstYardages;
+
   return pars.slice(0, count).map((par, index) => ({
     number: index + 1,
     par,
+    distance: yardages?.[index],
     score: 0,
     putts: 0,
     fairway: 'na' as const,
