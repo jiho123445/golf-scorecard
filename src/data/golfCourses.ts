@@ -166,31 +166,132 @@ export const golfCourses: GolfCourse[] = [
   },
 
   // 경기
-  { id: 'lakeside', name: '레이크사이드 컨트리클럽', region: '경기도 용인시', totalHoles: 54 },
-  { id: '88cc', name: '88 컨트리클럽', region: '경기도 용인시', totalHoles: 36 },
+  {
+    // 동/서/남 3개 18홀 코스(각 OUT+IN)로 구성. Par는 공식 사이트에서 1회 추출한 값으로 2차 검증되지 않아 중간 신뢰도
+    id: 'lakeside', name: '레이크사이드 컨트리클럽', region: '경기도 용인시', totalHoles: 54,
+    courses: ['동코스 OUT', '동코스 IN', '서코스 OUT', '서코스 IN', '남코스 OUT', '남코스 IN'],
+    coursePars: {
+      '동코스 OUT': P([4,5,4,3,4,4,5,3,4]),
+      '동코스 IN': P([4,4,3,4,5,4,3,4,5]),
+      '서코스 OUT': P([5,4,3,4,4,3,4,5,4]),
+      '서코스 IN': P([4,5,3,4,4,5,4,3,4]),
+      '남코스 OUT': P([4,4,3,4,4,5,3,4,5]),
+      '남코스 IN': P([4,5,3,4,5,3,4,4,4]),
+    },
+  },
+  {
+    // 동/서 2개 18홀 코스(각 OUT+IN). 두 독립 소스가 27홀 전부 일치해 신뢰도 높음
+    id: '88cc', name: '88 컨트리클럽', region: '경기도 용인시', totalHoles: 36,
+    courses: ['동코스 OUT', '동코스 IN', '서코스 OUT', '서코스 IN'],
+    coursePars: {
+      '동코스 OUT': P([4,4,5,3,4,3,4,5,4]),
+      '동코스 IN': P([5,4,3,4,4,4,5,3,4]),
+      '서코스 OUT': P([4,4,3,5,4,4,3,5,4]),
+      '서코스 IN': P([5,4,4,3,4,3,4,4,5]),
+    },
+  },
+  // 타이거코스·라이온코스(각 18홀) 2코스로 확인되었으나, 홀별 Par를 신뢰할 수 있는 소스를 찾지 못해(라이온코스 추정치는 합계가 파72와 불일치) 기본값 유지
   { id: 'hanwha-plaza-yongin', name: '플라자CC 용인', region: '경기도 용인시', totalHoles: 36 },
-  { id: 'gold-cc', name: '골드 컨트리클럽', region: '경기도 용인시', totalHoles: 36 },
-  { id: 'blueone-yongin', name: '블루원 용인 컨트리클럽', region: '경기도 용인시', totalHoles: 27 },
-  { id: 'south-springs', name: '사우스스프링스 컨트리클럽', region: '경기도 이천시', totalHoles: 18 },
-  // 북·동·서 3코스 27홀로 확장(기존 18홀에서 상향)
-  { id: 'blackstone-icheon', name: '블랙스톤 이천 골프클럽', region: '경기도 이천시', totalHoles: 27 },
-  { id: 'h1-club', name: 'H1 CLUB', region: '경기도 이천시', totalHoles: 18 },
-  { id: 'skyvalley', name: '스카이밸리 컨트리클럽', region: '경기도 여주시', totalHoles: 36 },
-  { id: 'ferrum', name: '페럼클럽', region: '경기도 여주시', totalHoles: 18 },
-  { id: 'solmoro', name: '솔모로 컨트리클럽', region: '경기도 여주시', totalHoles: 36 },
-  { id: 'haesley', name: '해슬리 나인브릿지', region: '경기도 여주시', totalHoles: 18 },
-  // 실제 소재지는 경기도 용인시 처인구 백암면(퍼블릭 18홀) — 기존 '여주시 27홀'은 오기로 확인됨
-  { id: 'sunning-point', name: '써닝포인트 컨트리클럽', region: '경기도 용인시', totalHoles: 18 },
-  { id: 'golf-club-q', name: '골프클럽Q', region: '경기도 안성시', totalHoles: 18 },
-  { id: 'ansung-benest', name: '안성베네스트 골프클럽', region: '경기도 안성시', totalHoles: 36 },
-  { id: 'anseong-cc', name: '안성 컨트리클럽', region: '경기도 안성시', totalHoles: 18 },
+  {
+    // 챔피언코스·마스터코스(각 18홀) 2코스. 챔피언코스만 Par 확인(단일 소스지만 기사 자체의 '파73' 서술과 합산 일치). 마스터코스는 소스를 찾지 못해 기본값 유지
+    id: 'gold-cc', name: '골드 컨트리클럽', region: '경기도 용인시', totalHoles: 36,
+    courses: ['챔피언코스 OUT', '챔피언코스 IN', '마스터코스 OUT', '마스터코스 IN'],
+    coursePars: {
+      '챔피언코스 OUT': P([4,3,5,3,4,3,5,4,5]),
+      '챔피언코스 IN': P([4,3,4,4,5,3,5,5,4]),
+    },
+  },
+  {
+    id: 'blueone-yongin', name: '블루원 용인 컨트리클럽', region: '경기도 용인시', totalHoles: 27,
+    courses: ['서코스', '중코스', '동코스'],
+    coursePars: {
+      '서코스': P([5,4,3,4,4,4,3,5,4]),
+      '중코스': P([4,4,3,5,4,3,4,4,5]),
+      '동코스': P([5,4,3,4,5,3,4,4,4]),
+    },
+  },
+  {
+    // 전/후반이 'OUT/IN'이 아닌 '레이크코스'·'마운틴코스'라는 실제 명칭으로 운영됨
+    id: 'south-springs', name: '사우스스프링스 컨트리클럽', region: '경기도 이천시', totalHoles: 18,
+    courses: ['레이크코스', '마운틴코스'],
+    coursePars: { '레이크코스': P([4,5,4,4,3,4,5,3,4]), '마운틴코스': P([4,4,5,4,3,5,4,3,4]) },
+  },
+  {
+    // 이스트·노스·웨스트 3코스 27홀(기존 18홀에서 확장), 공식 홈페이지 홀별 페이지 기준
+    id: 'blackstone-icheon', name: '블랙스톤 이천 골프클럽', region: '경기도 이천시', totalHoles: 27,
+    courses: ['이스트코스', '노스코스', '웨스트코스'],
+    coursePars: {
+      '이스트코스': P([5,4,4,3,4,4,3,4,5]),
+      '노스코스': P([5,4,3,4,5,4,3,4,4]),
+      '웨스트코스': P([4,4,4,3,4,5,3,4,5]),
+    },
+  },
+  {
+    // 전/후반이 '레이크코스'·'마운틴코스'라는 실제 명칭으로 운영됨(구 덕평CC)
+    id: 'h1-club', name: 'H1 CLUB', region: '경기도 이천시', totalHoles: 18,
+    courses: ['레이크코스', '마운틴코스'],
+    coursePars: { '레이크코스': P([4,5,4,4,3,4,5,3,4]), '마운틴코스': P([4,4,4,4,3,5,4,3,5]) },
+  },
+  {
+    // 스카이/밸리/레이크/마운틴 4코스 36홀. 스카이·밸리만 Par 확인(제3자 소스, 중간 신뢰도). 레이크·마운틴은 소스를 찾지 못해 기본값 유지
+    id: 'skyvalley', name: '스카이밸리 컨트리클럽', region: '경기도 여주시', totalHoles: 36,
+    courses: ['스카이코스', '밸리코스', '레이크코스', '마운틴코스'],
+    coursePars: {
+      '스카이코스': P([4,5,4,3,5,4,3,4,4]),
+      '밸리코스': P([4,5,3,4,4,4,3,5,4]),
+    },
+  },
+  // 동/서 2코스로 확인되었으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'ferrum', name: '페럼클럽', region: '경기도 여주시', totalHoles: 18, courses: ['동코스', '서코스'] },
+  // 파인/메이플/체리/퍼시몬 4코스로 확인되었으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'solmoro', name: '솔모로 컨트리클럽', region: '경기도 여주시', totalHoles: 36, courses: ['파인코스', '메이플코스', '체리코스', '퍼시몬코스'] },
+  // 해슬리코스(전반)·PGA코스(후반) 2개 구간으로 확인되었으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'haesley', name: '해슬리 나인브릿지', region: '경기도 여주시', totalHoles: 18, courses: ['해슬리코스', 'PGA코스'] },
+  {
+    // 실제 소재지는 경기도 용인시 처인구 백암면(퍼블릭 18홀) — 기존 '여주시 27홀'은 오기로 확인됨.
+    // 전/후반이 'SUN'·'POINT'라는 실제 명칭으로 운영됨. SUN코스 9번홀은 공식 스코어카드·방송 클립에서 파6로 확인되나, 앱의 Par 데이터 모델(3/4/5)로는 표현할 수 없어 SUN코스는 제외하고 POINT코스만 반영
+    id: 'sunning-point', name: '써닝포인트 컨트리클럽', region: '경기도 용인시', totalHoles: 18,
+    courses: ['SUN', 'POINT'],
+    coursePars: { 'POINT': P([4,4,3,4,5,4,3,4,5]) },
+  },
+  {
+    // 전/후반이 '팜파스'·'밸리'라는 실제 명칭으로 운영됨
+    id: 'golf-club-q', name: '골프클럽Q', region: '경기도 안성시', totalHoles: 18,
+    courses: ['팜파스', '밸리'],
+    coursePars: { '팜파스': P([4,5,4,3,5,4,3,4,4]), '밸리': P([5,4,4,4,3,4,3,4,5]) },
+  },
+  // 북/서/남/동 4코스로 확인됨(북+서=클래식코스, 남+동=챌린저코스) — 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'ansung-benest', name: '안성베네스트 골프클럽', region: '경기도 안성시', totalHoles: 36, courses: ['북코스', '서코스', '남코스', '동코스'] },
+  {
+    id: 'anseong-cc', name: '안성 컨트리클럽', region: '경기도 안성시', totalHoles: 18,
+    courses: ['OUT', 'IN'],
+    coursePars: { 'OUT': P([4,4,3,4,5,5,3,4,4]), 'IN': P([4,4,3,5,4,3,5,4,4]) },
+  },
   { id: 'new-korea', name: '뉴코리아 컨트리클럽', region: '경기도 고양시', totalHoles: 18 },
-  { id: 'new-seoul', name: '뉴서울 컨트리클럽', region: '경기도 광주시', totalHoles: 36 },
+  // 문화코스·예술코스(각 18홀) 2코스로 확인되었으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'new-seoul', name: '뉴서울 컨트리클럽', region: '경기도 광주시', totalHoles: 36, courses: ['문화코스 OUT', '문화코스 IN', '예술코스 OUT', '예술코스 IN'] },
   { id: 'namseoul', name: '남서울 컨트리클럽', region: '경기도 성남시', totalHoles: 18 },
-  { id: 'eastvalley', name: '이스트밸리 컨트리클럽', region: '경기도 광주시', totalHoles: 27 },
-  { id: 'wellington', name: '웰링턴 컨트리클럽', region: '경기도 이천시', totalHoles: 27 },
-  // 회원제 27홀 + 대중제 9홀 = 총 36홀
-  { id: 'adonis', name: '포천아도니스 컨트리클럽', region: '경기도 포천시', totalHoles: 36 },
+  {
+    id: 'eastvalley', name: '이스트밸리 컨트리클럽', region: '경기도 광주시', totalHoles: 27,
+    courses: ['동코스', '서코스', '남코스'],
+    coursePars: { '동코스': P([4,5,4,3,4,5,3,4,4]), '서코스': P([4,5,3,4,4,5,4,3,4]), '남코스': P([5,4,3,4,3,4,5,4,4]) },
+  },
+  {
+    id: 'wellington', name: '웰링턴 컨트리클럽', region: '경기도 이천시', totalHoles: 27,
+    courses: ['GRIFFIN', 'PHOENIX', 'WYVERN'],
+    coursePars: { 'GRIFFIN': P([4,5,4,4,3,5,4,3,4]), 'PHOENIX': P([4,4,3,4,5,3,4,4,5]), 'WYVERN': P([4,5,3,4,5,4,3,4,4]) },
+  },
+  {
+    // 회원제 27홀(서/중/동) + 대중제(퍼블릭) 9홀 = 총 36홀
+    id: 'adonis', name: '포천아도니스 컨트리클럽', region: '경기도 포천시', totalHoles: 36,
+    courses: ['서코스', '중코스', '동코스', 'PUBLIC'],
+    coursePars: {
+      '서코스': P([4,5,3,4,4,5,3,4,4]),
+      '중코스': P([4,4,3,4,5,4,4,3,5]),
+      '동코스': P([4,5,3,4,4,5,4,3,4]),
+      'PUBLIC': P([4,4,3,5,4,3,4,5,4]),
+    },
+  },
 
   // 충청
   { id: 'woojunghills', name: '우정힐스 컨트리클럽', region: '충청남도 천안시', totalHoles: 18 },
