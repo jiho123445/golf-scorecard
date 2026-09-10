@@ -294,50 +294,124 @@ export const golfCourses: GolfCourse[] = [
   },
 
   // 충청
-  { id: 'woojunghills', name: '우정힐스 컨트리클럽', region: '충청남도 천안시', totalHoles: 18 },
+  {
+    id: 'woojunghills', name: '우정힐스 컨트리클럽', region: '충청남도 천안시', totalHoles: 18,
+    courses: ['OUT', 'IN'],
+    coursePars: { 'OUT': P([4,4,4,3,5,4,3,5,4]), 'IN': P([4,5,4,3,4,4,3,4,5]) },
+  },
+  // 파인코스·레이크코스 2코스로 확인되었으나, 조사된 홀별 Par가 소스마다 서로 달라(합산도 36과 불일치) 신뢰할 수 없어 기본값 유지
   { id: 'imperial-lake', name: '임페리얼레이크 컨트리클럽', region: '충청북도 충주시', totalHoles: 18 },
-  { id: 'kingsdale', name: '킹스데일 골프클럽', region: '충청북도 충주시', totalHoles: 18 },
-  { id: 'lotte-buyeo', name: '롯데스카이힐 부여', region: '충청남도 부여군', totalHoles: 18 },
-  { id: 'goldenbay', name: '골든베이 골프앤리조트', region: '충청남도 태안군', totalHoles: 27 },
+  // 레이크코스·힐코스 2코스로 확인되었으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'kingsdale', name: '킹스데일 골프클럽', region: '충청북도 충주시', totalHoles: 18, courses: ['레이크코스', '힐코스'] },
+  {
+    // 전/후반이 'SKY(계백장군)'·'HILL(의자왕)'이라는 실제 명칭으로 운영됨
+    id: 'lotte-buyeo', name: '롯데스카이힐 부여', region: '충청남도 부여군', totalHoles: 18,
+    courses: ['SKY(계백장군)', 'HILL(의자왕)'],
+    coursePars: { 'SKY(계백장군)': P([4,4,4,4,3,5,4,3,5]), 'HILL(의자왕)': P([4,4,3,5,4,3,5,4,4]) },
+  },
+  // 마운틴·오션·밸리 3코스로 확인되었으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'goldenbay', name: '골든베이 골프앤리조트', region: '충청남도 태안군', totalHoles: 27, courses: ['마운틴코스', '오션코스', '밸리코스'] },
 
   // 영남
-  { id: 'blueone-sangju', name: '블루원 상주 골프리조트', region: '경상북도 상주시', totalHoles: 18 },
-  { id: 'gyeongju-silla', name: '경주신라 컨트리클럽', region: '경상북도 경주시', totalHoles: 36 },
-  // 2022년 블루코스(9홀) 추가로 27홀로 확장
-  { id: 'mauna-ocean', name: '마우나오션 리조트 골프클럽', region: '경상북도 경주시', totalHoles: 27 },
+  {
+    // 동/서 2코스. 공식 사이트에 스코어카드가 없어 제3자 홀 소개 페이지를 종합했고, 18홀 중 2홀은 나머지 홀 파 합산(36)에 맞춰 역산한 값이라 중간 신뢰도
+    id: 'blueone-sangju', name: '블루원 상주 골프리조트', region: '경상북도 상주시', totalHoles: 18,
+    courses: ['동코스', '서코스'],
+    coursePars: { '동코스': P([4,4,5,4,3,4,3,5,4]), '서코스': P([4,5,4,4,5,3,4,3,4]) },
+  },
+  {
+    // 실제 구성은 천마코스·화랑코스(각 18홀)이며 9홀 단위 독립 코스 4개가 아님
+    id: 'gyeongju-silla', name: '경주신라 컨트리클럽', region: '경상북도 경주시', totalHoles: 36,
+    courses: ['천마코스 OUT', '천마코스 IN', '화랑코스 OUT', '화랑코스 IN'],
+    coursePars: {
+      '천마코스 OUT': P([4,5,3,4,4,5,3,4,4]),
+      '천마코스 IN': P([4,5,4,3,4,4,4,3,5]),
+      '화랑코스 OUT': P([4,4,3,5,4,3,5,4,4]),
+      '화랑코스 IN': P([4,5,4,3,5,4,3,4,4]),
+    },
+  },
+  // 2022년 블루코스(9홀) 추가로 27홀로 확장. 마우나·블루·오션 3코스명은 확인됐으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'mauna-ocean', name: '마우나오션 리조트 골프클럽', region: '경상북도 경주시', totalHoles: 27, courses: ['마우나코스', '블루코스', '오션코스'] },
   { id: 'gimcheon-podo', name: '김천포도 컨트리클럽', region: '경상북도 김천시', totalHoles: 18 }, // 구 '베네치아CC'가 재개장하며 개명
   { id: 'pal-gong', name: '팔공 컨트리클럽', region: '대구광역시 동구', totalHoles: 18 },
-  { id: 'bay-side', name: '베이사이드 골프클럽', region: '부산광역시 기장군', totalHoles: 27 },
+  {
+    // 파크·레이크·캐년 3코스. 파크코스만 홀별 Par 확인됨(레이크·캐년은 소스를 찾지 못해 기본값 유지)
+    id: 'bay-side', name: '베이사이드 골프클럽', region: '부산광역시 기장군', totalHoles: 27,
+    courses: ['파크코스', '레이크코스', '캐년코스'],
+    coursePars: { '파크코스': P([4,4,5,4,3,4,3,4,5]) },
+  },
   { id: 'busan-cc', name: '부산 컨트리클럽', region: '부산광역시 금정구', totalHoles: 18 },
-  { id: 'dongbusan', name: '동부산 컨트리클럽', region: '부산광역시 기장군', totalHoles: 27 },
-  // 골든·로얄·실크 3코스 27홀 챔피언십 코스
-  { id: 'haeundae', name: '해운대 컨트리클럽', region: '부산광역시 기장군', totalHoles: 27 },
+  {
+    id: 'dongbusan', name: '동부산 컨트리클럽', region: '부산광역시 기장군', totalHoles: 27,
+    courses: ['힐코스', '레이크코스', '밸리코스'],
+    coursePars: { '힐코스': P([4,5,3,4,5,4,4,3,4]), '레이크코스': P([4,3,5,3,4,4,4,5,4]), '밸리코스': P([4,5,4,3,4,5,3,4,4]) },
+  },
+  {
+    // 골든·로얄·실크 3코스 27홀 챔피언십 코스
+    id: 'haeundae', name: '해운대 컨트리클럽', region: '부산광역시 기장군', totalHoles: 27,
+    courses: ['로얄코스', '실크코스', '골든코스'],
+    coursePars: { '로얄코스': P([4,5,3,4,4,5,4,4,3]), '실크코스': P([4,3,4,4,4,5,4,3,5]), '골든코스': P([5,3,4,5,4,4,3,4,4]) },
+  },
 
   // 호남
-  // 동악·섬진·설산 3코스 27홀(실제 소재지는 전남 곡성군이나 명칭은 '광주'로 유지)
-  { id: 'gwangju-cc', name: '광주 컨트리클럽', region: '광주광역시', totalHoles: 27 },
-  // 어등·송정·하남 3코스 27홀
-  { id: 'eodeungsan', name: '어등산 컨트리클럽', region: '광주광역시', totalHoles: 27 },
-  // 석양(골드)·호수(레이크)·언덕(힐)·계곡(밸리) 4코스 36홀(회원제는 18홀만 운영)
-  { id: 'gold-lake', name: '골드레이크 컨트리클럽', region: '전라남도 나주시', totalHoles: 36 },
-  // 스프링·썸머·어텀 3코스 27홀
-  { id: 'hwasun', name: '화순 컨트리클럽', region: '전라남도 화순군', totalHoles: 27 },
-  { id: 'dasan-beach', name: '다산베아채 골프앤리조트', region: '전라남도 강진군', totalHoles: 27 },
-  { id: 'seokjeong', name: '석정힐 컨트리클럽', region: '전북특별자치도 고창군', totalHoles: 18 },
+  {
+    // 동악·섬진·설산 3코스 27홀(실제 소재지는 전남 곡성군이나 명칭은 '광주'로 유지)
+    id: 'gwangju-cc', name: '광주 컨트리클럽', region: '광주광역시', totalHoles: 27,
+    courses: ['동악코스', '섬진코스', '설산코스'],
+    coursePars: { '동악코스': P([4,4,5,4,3,5,4,3,4]), '섬진코스': P([4,4,3,5,4,5,4,3,4]), '설산코스': P([4,4,3,5,4,3,5,4,4]) },
+  },
+  // 어등·송정·하남 3코스 27홀 — 코스명은 확인됐으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'eodeungsan', name: '어등산 컨트리클럽', region: '광주광역시', totalHoles: 27, courses: ['어등코스', '송정코스', '하남코스'] },
+  {
+    // 공식 명칭은 Gold(회원제)·Lake(회원제)·Hill(대중제)·Valley(대중제) 4코스 36홀
+    id: 'gold-lake', name: '골드레이크 컨트리클럽', region: '전라남도 나주시', totalHoles: 36,
+    courses: ['GOLD', 'LAKE', 'HILL', 'VALLEY'],
+    coursePars: {
+      'GOLD': P([5,4,3,4,4,5,3,4,4]),
+      'LAKE': P([4,3,5,4,4,3,4,4,5]),
+      'HILL': P([4,5,4,3,4,5,3,4,4]),
+      'VALLEY': P([4,3,4,5,4,4,4,3,5]),
+    },
+  },
+  {
+    // 스프링·썸머·어텀 3코스 27홀
+    id: 'hwasun', name: '화순 컨트리클럽', region: '전라남도 화순군', totalHoles: 27,
+    courses: ['스프링코스', '썸머코스', '어텀코스'],
+    coursePars: { '스프링코스': P([4,5,3,4,3,4,4,4,5]), '썸머코스': P([4,4,4,3,5,4,3,5,4]), '어텀코스': P([5,4,4,4,3,4,5,3,4]) },
+  },
+  // 다산·베아채·장보고 3코스로 확인되었으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'dasan-beach', name: '다산베아채 골프앤리조트', region: '전라남도 강진군', totalHoles: 27, courses: ['다산코스', '베아채코스', '장보고코스'] },
+  {
+    // 전반 마운틴코스, 후반 레이크코스라는 실제 명칭으로 운영됨
+    id: 'seokjeong', name: '석정힐 컨트리클럽', region: '전북특별자치도 고창군', totalHoles: 18,
+    courses: ['마운틴코스', '레이크코스'],
+    coursePars: { '마운틴코스': P([4,5,4,5,3,4,3,4,4]), '레이크코스': P([4,4,4,5,3,4,4,3,5]) },
+  },
   { id: 'golfzon-muju', name: '무주덕유산 컨트리클럽', region: '전북특별자치도 무주군', totalHoles: 18 },
 
   // 제주
   { id: 'nine-bridges', name: '나인브릿지 제주', region: '제주특별자치도 서귀포시', totalHoles: 18 },
-  // 회원제 18홀 + 대중제(퍼블릭) 9홀 = 총 27홀
+  // 회원제 18홀(East·West) + 대중제(퍼블릭) 9홀 = 총 27홀. 제3자 소스 간 코스명(North vs South)·Par 데이터가 서로 충돌해 신뢰할 수 없어 기본값 유지
   { id: 'pinx', name: '핀크스 골프클럽', region: '제주특별자치도 서귀포시', totalHoles: 27 },
-  { id: 'haevichi-jeju', name: '해비치 컨트리클럽 제주', region: '제주특별자치도 서귀포시', totalHoles: 36 },
-  { id: 'lotte-jeju', name: '롯데스카이힐 제주 컨트리클럽', region: '제주특별자치도 서귀포시', totalHoles: 36 },
+  // 회원제 18홀(SKY+PALM) + 대중제 18홀(LAKE+VALLEY) = 총 36홀 — 코스명만 확인됨, 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'haevichi-jeju', name: '해비치 컨트리클럽 제주', region: '제주특별자치도 서귀포시', totalHoles: 36, courses: ['SKY', 'PALM', 'LAKE', 'VALLEY'] },
+  {
+    id: 'lotte-jeju', name: '롯데스카이힐 제주 컨트리클럽', region: '제주특별자치도 서귀포시', totalHoles: 36,
+    courses: ['SKY', 'HILL', 'OCEAN', 'FOREST'],
+    coursePars: {
+      'SKY': P([4,4,4,5,3,4,4,3,5]),
+      'HILL': P([5,3,4,4,3,4,4,5,4]),
+      'OCEAN': P([4,4,4,4,3,5,4,3,5]),
+      'FOREST': P([5,4,4,3,4,5,4,3,5]), // 공식 스코어카드 2회 추출 모두 파37로 특이하게 확인됨(9홀 기준 이례적)
+    },
+  },
   // 회원제 18홀 + 대중제 18홀 = 총 36홀
   { id: 'eli-jeju', name: '엘리시안 제주 컨트리클럽', region: '제주특별자치도 제주시', totalHoles: 36 },
-  // West·North·East·South 4코스 36홀
-  { id: 'cypress', name: '사이프러스 골프앤리조트', region: '제주특별자치도 서귀포시', totalHoles: 36 },
+  // West·North·East·South 4코스 36홀 — 코스명은 공식 홈페이지에서 확인됐으나 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'cypress', name: '사이프러스 골프앤리조트', region: '제주특별자치도 서귀포시', totalHoles: 36, courses: ['WEST', 'NORTH', 'EAST', 'SOUTH'] },
   { id: 'tedivalley', name: '테디밸리 골프앤리조트', region: '제주특별자치도 서귀포시', totalHoles: 18 },
-  { id: 'jungmun', name: '중문 골프클럽', region: '제주특별자치도 서귀포시', totalHoles: 18 },
+  // 전반 한라코스, 후반 해안코스라는 실제 명칭으로 운영됨(한국관광공사 운영 공식 사이트 확인) — 홀별 Par 소스를 찾지 못해 기본값 유지
+  { id: 'jungmun', name: '중문 골프클럽', region: '제주특별자치도 서귀포시', totalHoles: 18, courses: ['한라코스', '해안코스'] },
 ];
 
 export const golfRegions = Array.from(new Set(golfCourses.map((course) => course.region.split(' ')[0])));
